@@ -1,40 +1,39 @@
-Topic,Product module,Price,Webapp,API,Datafeed
-Regulatory,SFDR PAIs,33000,TRUE,TRUE,TRUE
-Regulatory,UK SDR,33000,TRUE,FALSE,TRUE
-Regulatory,EU Taxonomy - product level reporting,33000,TRUE,TRUE,TRUE
-Regulatory,EU Taxonomy (incl. entity level Article 8 prefilled annexes IV & X),48000,TRUE,TRUE,TRUE
-Regulatory (upsells only),EU Tax. Article 8 - standalone reports,20000,TRUE,TRUE,TRUE
-Regulatory,SFDR Sustainable investment,22000,TRUE,TRUE,TRUE
-Regulatory,Article 29 - annexes,45000,FALSE,FALSE,TRUE
-Regulatory,EET,33000,TRUE,FALSE,TRUE
-Regulatory,Pillar 3 - complete solution,60000,TRUE,FALSE,TRUE
-Regulatory,Pillar 3 - Templates 1-8,50000,TRUE,FALSE,TRUE
-Regulatory,MiFID II,38000,TRUE,TRUE,TRUE
-Regulatory,Swiss Climate Scores,44000,FALSE,TRUE,TRUE
-Climate,Carbon Footprint,30800,TRUE,TRUE,TRUE
-Climate,Climate Transition,51700,TRUE,TRUE,FALSE
-Climate,TCFD Top 10 Securities Risks and Opportunities,30800,FALSE,FALSE,FALSE
-Climate,TCFD Reporting (portfolio/fund level),19000,FALSE,FALSE,FALSE
-Climate,Climate Scenario Analysis,57000,FALSE,FALSE,FALSE
-Risk,ESG Risk,23100,FALSE,FALSE,FALSE
-Risk,Exposures,20400,FALSE,FALSE,FALSE
-Risk,Controversies Premium,22000,FALSE,FALSE,FALSE
-Risk AI Assistant ,50000 ,FALSE ,FALSE ,FALSE 
-Impact ,UN SDGs Alignment ,38000 ,FALSE ,FALSE ,FALSE 
-Impact ,Impact highlights ,15400 ,FALSE ,FALSE ,FALSE 
-Nature & Biodiversity ,Proximity Analysis - not available as of now ,45000 ,FALSE ,FALSE ,FALSE 
-Nature & Biodiversity ,Nature & Biodiversity - Dependency and Risk ,13000 ,FALSE ,FALSE ,FALSE 
-Nature & Biodiversity ,Nature & Biodiversity - TNFD ,15400 ,FALSE ,FALSE ,FALSE 
-Nature & Biodiversity ,Nature & Biodiversity - Impact ,15400 ,FALSE ,FALSE ,FALSE 
-Labels ,PaB - Paris Aligned Benchmarks ,12500 ,FALSE ,FALSE ,FALSE 
-Labels ,CTB - Climate Transition Benchmark ,12500 ,FALSE ,FALSE ,FALSE 
-Labels ,FNG ,12500 ,FALSE ,FALSE ,FALSE 
-Labels,SRI 12500 TRUE FALSE FALSE 
-Raw data Emissions / Up to 10 metrics 15000 FALSE FALSE TRUE 
-Raw data 10 - 20 metrics 25000 FALSE FALSE TRUE 
-Raw data 20 - 30 metrics 35000 FALSE FALSE TRUE 
-Raw data 30 - 50 metrics 45000 FALSE FALSE TRUE 
-Raw data 50 - 100 metrics 80000 FALSE FALSE TRUE 
-Benchmarks,Benchmarks - SFDR PAI,,35000,FALSE,FALSE.TRUE 
-Benchmarks,Benchmarks - SFDR PAI + EDCI,,40000,FALSE,FALSE.TRUE
+Topic,Product module,Price,Standard, Webapp,API,Datafeed
+Regulatory,SFDR PAIs,33000,TRUE,TRUE,TRUE,TRUE
+Regulatory,UK SDR,33000,TRUE,TRUE,FALSE,TRUE
+Regulatory,EU Taxonomy - product level reporting,33000,TRUE,TRUE,TRUE,TRUE
+Regulatory,EU Taxonomy (incl. entity level Article 8 prefilled annexes IV & X),48000,TRUE,TRUE,TRUE,TRUE
+Regulatory (upsells only),EU Tax. Article 8 - standalone reports,20000,TRUE,TRUE,TRUE,TRUE
+Regulatory,SFDR Sustainable investment,22000,TRUE,TRUE,TRUE,TRUE
+Regulatory,Article 29 - annexes,45000,FALSE,FALSE,FALSE,TRUE
+Regulatory,EET,33000,TRUE,TRUE,FALSE,TRUE
+Regulatory,Pillar 3 - complete solution,60000,FALSE,FALSE,FALSE,TRUE
+Regulatory,Pillar 3 - Templates 1-8,50000,FALSE,FALSE,FALSE,TRUE
+Regulatory,MiFID II,38000,TRUE,TRUE,TRUE,TRUE
+Regulatory,Swiss Climate Scores,44000,FALSE,FALSE,TRUE,TRUE
+Climate,Carbon Footprint,30800,TRUE,TRUE,TRUE,TRUE
+Climate,Climate Transition,51700,TRUE,TRUE,TRUE,FALSE
+Climate,TCFD Top 10 Securities Risks and Opportunities,30800,FALSE,FALSE,FALSE,TRUE
+Climate,TCFD Reporting (portfolio/fund level),19000,FALSE,FALSE,FALSE,TRUE
+Climate,Climate Scenario Analysis,57000,FALSE, FALSE,FALSE,TRUE
+Risk,ESG Risk,23100,TRUE,TRUE,TRUE,TRUE
+Risk,Exposures,20400,TRUE,TRUE,TRUE,TRUE
+Risk,Controversies Premium,22000,TRUE,TRUE,FALSE,FALSE
+Impact ,UN SDGs Alignment ,38000 TRUE,FALSE ,FALSE ,FALSE 
+Impact ,Impact highlights ,15400 TRUE,FALSE ,FALSE ,FALSE 
+Nature & Biodiversity ,Proximity Analysis - not available as of now ,45000 TRUE,FALSE ,FALSE ,FALSE 
+Nature & Biodiversity ,Nature & Biodiversity - Dependency and Risk ,13000 TRUE,FALSE ,FALSE ,FALSE 
+Nature & Biodiversity ,Nature & Biodiversity - TNFD ,15400 TRUE,FALSE ,FALSE ,FALSE 
+Nature & Biodiversity ,Nature & Biodiversity - Impact ,15400 TRUE,FALSE ,FALSE ,FALSE 
+Labels ,PaB - Paris Aligned Benchmarks ,12500 TRUE,FALSE ,FALSE ,FALSE 
+Labels ,CTB - Climate Transition Benchmark ,12500 TRUE,FALSE ,FALSE ,FALSE 
+Labels ,FNG ,12500 TRUE,TRUE ,FALSE ,TRUE 
+Labels,SRI 12500 TRUE,TRUE, FALSE, TRUE 
+Raw data Emissions / Up to 10 metrics 15000 FALSE,FALSE, FALSE, TRUE 
+Raw data 10 - 20 metrics 25000 FALSE,FALSE, FALSE, TRUE 
+Raw data 20 - 30 metrics 35000 FALSE,FALSE, FALSE, TRUE 
+Raw data 30 - 50 metrics 45000 FALSE,FALSE, FALSE, TRUE 
+Raw data 50 - 100 metrics 80000 FALSE,FALSE, FALSE, TRUE 
+Benchmarks,Benchmarks - SFDR PAI,,35000,FALSE,FALSE,FALSE.TRUE 
+Benchmarks,Benchmarks - SFDR PAI + EDCI,,40000,FALSE,FALSE,FALSE.TRUE
 
