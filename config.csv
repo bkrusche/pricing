@@ -24,22 +24,3 @@ Type,Key,Value
 Contract Discount,"1 year","0,0,0"
 Contract Discount,"2 year","10,5,0"
 Contract Discount,"3 year","15,10,5"
-
-
-# Access Method Price Factors
-Access Method Combination,"Webapp (reports only)","Webapp (download)","API","Datafeed",Price Factor
-TRUE,FALSE,FALSE,FALSE,-0.15
-FALSE,TRUE,FALSE,FALSE,0
-FALSE,FALSE,TRUE,FALSE,0
-FALSE,FALSE,FALSE,TRUE,+0.15
-TRUE,TRUE,FALSE,FALSE,+0
-TRUE,FALSE,TRUE,FALSE,+0.20
-TRUE,FALSE,FALSE,TRUE,+0.35
-TRUE,TRUE,TRUE,FALSE,+0.20
-TRUE,TRUE,FALSE,TRUE,+0.35
-TRUE,FALSE,TRUE,TRUE,+0.40
-TRUE,TRUE,TRUE,TRUE,+0.40
-FALSE,TRUE,TRUE,FALSE,+0.20
-FALSE,TRUE,FALSE,+0.35
-FALSE,FALSE,+0.35
-FALSE,+40%
