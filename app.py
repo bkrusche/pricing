@@ -84,7 +84,6 @@ def format_price(price, currency):
 # Main application logic
 def main():
     try:
-        config_df, _ = load_config()  # Load config without needing access method factors here
         access_method_factors = load_access_methods()  # Load access methods
         st.title("Product Price Configurator")
 
