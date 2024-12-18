@@ -70,7 +70,23 @@ def main():
         st.subheader("Select Product Modules")
         selected_modules = []
         
-        # Group modules by Topic
+        # Define the custom order for topics
+        custom_order = [
+            "Regulatory",
+            "Climate",
+            "Risk",
+            "Impact",
+            "Nature & Biodiversity",
+            "Labels",
+            "Raw data",
+            "Benchmarks"
+        ]
+        
+        # Sort modules based on custom order
+        modules_df['Topic'] = pd.Categorical(modules_df['Topic'], categories=custom_order, ordered=True)
+        modules_df.sort_values('Topic', inplace=True)
+
+        # Group modules by Topic and display them
         grouped_modules = modules_df.groupby('Topic')
         
         for topic, group in grouped_modules:
