@@ -20,10 +20,26 @@ config_df = load_config()
 
 # Extract configurations from the DataFrame
 try:
-    aum_brackets = {row['Key'].strip(): float(row['Value']) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
-    access_methods = {row['Key'].strip(): float(row['Value']) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
-    module_discounts = {int(row['Key']): float(row['Value']) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
-    exchange_rates = {row['Key']: eval(row['Value']) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
+    aum_brackets = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
+    access_methods = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
+    module_discounts = {int(row[2]): float(row[3]) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
+    
+    # Load contract discounts from a hardcoded dictionary or from CSV if needed
+    contract_discounts = {
+        "1 year": [0, 0, 0],
+        "2 year": [10, 5, 0],
+        "3 year": [15, 10, 5]
+    }
+    
+    # Load exchange rates and convert them to a dictionary safely.
+    exchange_rates = {}
+    for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
+        key = row[1]  # Currency code (e.g., EUR)
+        value_str = row[2].strip()  # Get the string representation of the rate
+        # Convert the string to a float value safely
+        value = eval(value_str) if '/' in value_str else float(value_str)
+        exchange_rates[key] = value
+
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
     st.stop()  # Stop execution if there's an error
@@ -46,8 +62,13 @@ def calculate_discount(module_count, contract_length):
     total_discount = 1 - (1 - module_discount) * (1 - contract_discount)
     return total_discount
 
-def format_price(price):
-    return f"${price:,.2f}"  # Assuming USD is the base currency
+def format_price(price, currency):
+    if currency == 'EUR':
+        return f"€{price:,.2f}"
+    elif currency == 'USD':
+        return f"${price:,.2f}"
+    elif currency == 'GBP':
+        return f"£{price:,.2f}"
 
 def main():
     try:
@@ -95,13 +116,13 @@ def main():
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
             selected_df['Offer Price'] *= (1 + access_multiplier)
             
-            selected_df['List Price'] = selected_df['List Price'].apply(format_price)
-            selected_df['Offer Price'] = selected_df['Offer Price'].apply(format_price)
+            selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
+            selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
-        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-        st.subheader("Total Price")
-        st.write(format_price(total_price))
+            total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
+            st.subheader("Total Price")
+            st.write(format_price(total_price))
 
         st.subheader("Additional Information")
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
