@@ -10,7 +10,7 @@ AuM Multiplier,250+Bn,2.20
 Access Method,Webapp (reports only),-0.15
 Access Method,Webapp (download),0
 Access Method,API,0
-Access Method,Datafeed,+0.15 
+Access Method,Datafeed,+0.15
 Module Discount,"2",0 
 Module Discount,"3",0.15 
 Module Discount,"4",0.20 
