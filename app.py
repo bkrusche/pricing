@@ -145,6 +145,7 @@ def main():
                 for method, selected in selected_access_methods.items():
                     # Ensure proper handling of availability column (True or False)   
                     if module_row[method] == "FALSE":  # Check the availability (TRUE or FALSE)
+                        st.write(f"- {selected}, {module}, {method}, {module_row[method]} ")
                         incompatible_combinations.append((module, method))
                         
             
