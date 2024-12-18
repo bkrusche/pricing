@@ -150,12 +150,8 @@ def main():
             )
             
             # Get the price factor based on selected access methods
-            price_factor = access_method_factors.get(access_method_keys, 0)  # Default to 0 if no match found
+            access_multiplier = access_method_factors.get(access_method_keys, 0)  # Default to 0 if no match found
             
-            # Apply the price factor to adjust the list price
-            selected_df['List Price'] *= (1 + price_factor)
-
-        
             # Apply total access multiplier
             selected_df['List Price'] *= (1 + access_multiplier)
         
