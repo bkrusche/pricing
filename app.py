@@ -36,12 +36,14 @@ try:
     for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
         key = row[1]  # Currency code (e.g., EUR)
         value_str = row[2].strip()  # Get the string representation of the rate
+        
         # Convert the string to a float value safely
         if '/' in value_str:
             numerator, denominator = map(float, value_str.split('/'))
             value = numerator / denominator
         else:
             value = float(value_str)
+        
         exchange_rates[key] = value
 
 except Exception as e:
@@ -146,11 +148,11 @@ def main():
 
             total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
             st.subheader("Total Price")
-            st.write(format_price(total_price, currency))
+            st.write(format_price(total_price))
 
         st.subheader("Additional Information")
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
-
+        
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         st.error(traceback.format_exc())
