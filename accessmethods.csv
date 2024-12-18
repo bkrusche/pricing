@@ -1,4 +1,3 @@
-# Access Method Price Factors
 Access Method Combination,"Webapp (reports only)","Webapp (download)","API","Datafeed",Price Factor
 True,False,False,False,-0.15
 False,True,False,False,0
