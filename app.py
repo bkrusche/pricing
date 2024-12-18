@@ -143,9 +143,11 @@ def main():
             for module in selected_modules:
                 module_row = modules_df[modules_df['Product module'] == module].iloc[0]
                 for method, selected in selected_access_methods.items():
+                       st.write(f"- {module} is not available with {method}")
                     # Ensure proper handling of availability column (True or False)
                     if selected and module_row[method] == "FALSE":  # Check the availability (TRUE or FALSE)
                         incompatible_combinations.append((module, method))
+                       st.write(f"- {module} is not available with {method}")
             
             # Display incompatible combinations
             if incompatible_combinations:
@@ -156,11 +158,6 @@ def main():
                         unsafe_allow_html=True,
                     )
                 
-                # Debug message to log incompatible combinations
-                st.write("Debug: Found incompatible combinations:")
-                for module, method in incompatible_combinations:
-                    st.write(f"- {module} is not available with {method}")
-
 
             # Total price
             total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
