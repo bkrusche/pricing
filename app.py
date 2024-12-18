@@ -40,7 +40,7 @@ def load_module_data():
         return pd.read_csv('modules.csv')
     except Exception as e:
         st.error(f"Error loading modules.csv: {str(e)}")
-        return pd.DataFrame(columns=['Topic', 'Product module', 'Price'])
+        return pd.DataFrame(columns=['Topic', 'Product module', 'Price', 'Webapp_report', 'Webapp_download', 'API', 'Datafeed'])
 
 modules_df = load_module_data()
 
@@ -110,13 +110,13 @@ def main():
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
     
-           # Ensure 'Price' is numeric before any calculations
+            # Ensure 'Price' is numeric before any calculations
             selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')  # Convert 'Price' to numeric, invalid parsing will result in NaN
 
             # Now perform the multiplication
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-         
-        # Apply access method multiplier to List Price
+    
+            # Apply access method multiplier to List Price
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
             selected_df['List Price'] *= (1 + access_multiplier)  # Apply multiplier here
 
@@ -131,7 +131,18 @@ def main():
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
+            # Show notes about access methods
+            notes = []
+            for _, row in selected_df.iterrows():
+                for method in selected_access_methods:
+                    # Check if the module is available for the selected access methods
+                    if row[method] == 'No':
+                        notes.append(f"{row['Product module']} not available in {method}.")
 
+            if notes:
+                st.subheader("Availability Notes")
+                for note in notes:
+                    st.write(note)
     
         total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
         st.subheader("Total Price")
