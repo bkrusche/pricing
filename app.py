@@ -18,6 +18,23 @@ def load_config():
 
 config_df = load_config()
 
+
+# Load access methods from CSV file
+@st.cache_data
+def load_access_methods():
+    try:
+        access_methods_df = pd.read_csv('accessmethods.csv')
+        access_method_factors = {}
+        for row in access_methods_df.itertuples(index=False):
+            key = (row[0], row[1], row[2], row[3])  # Tuple of (Webapp (reports only), Webapp (download), API, Datafeed)
+            value = float(row[4].replace('%', '').strip())  # Convert to float, removing any '%'
+            access_method_factors[key] = value
+        return access_method_factors
+    except Exception as e:
+        st.error(f"Error loading accessmethods.csv: {str(e)}")
+        return {}
+
+
 # Extract configurations from the DataFrame
 try:
     aum_brackets = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
