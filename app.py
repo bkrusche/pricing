@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import traceback
 
 # Initialize session state if not already done
 if 'init' not in st.session_state:
@@ -24,44 +25,80 @@ module_discounts = {2: 0, 3: 0.15, 4: 0.20, 5: 0.25, 6: 0.30, 7: 0.35}
 
 @st.cache_data
 def load_module_data():
-    return pd.read_csv('modules.csv')
+    try:
+        return pd.read_csv('modules.csv')
+    except Exception as e:
+        st.error(f"Error loading modules.csv: {str(e)}")
+        return pd.DataFrame(columns=['Topic', 'Product module', 'Price'])
 
 modules_df = load_module_data()
 
 def calculate_price(base_price, currency, aum, contract_length, selected_modules, access_methods):
-    aum_multiplier = aum_brackets[aum]
-    years = int(contract_length.split()[0])
-    
-    total_price = sum([base_price * (1 - contract_discounts[contract_length][year]/100) for year in range(years)])
-    
-    for module in selected_modules:
-        module_price = modules_df[modules_df['Product module'] == module]['Price'].values[0]
-        total_price += module_price * aum_multiplier * years
-    
-    # Apply access method multiplier
-    access_multiplier = max([access_methods[method] for method in access_methods if access_methods[method]])
-    total_price *= (1 + access_multiplier)
-    
-    # Apply module count discount
-    module_count = len(selected_modules)
-    if module_count in module_discounts:
-        total_price *= (1 - module_discounts[module_count])
-    elif module_count > 7:
-        total_price *= (1 - module_discounts[7])
-    
-    return total_price * exchange_rates[currency]
+    # ... (keep the existing calculate_price function)
 
 def format_price(price, currency):
-    if currency == 'EUR':
-        return f"€{price:,.2f}"
-    elif currency == 'USD':
-        return f"${price:,.2f}"
-    elif currency == 'GBP':
-        return f"£{price:,.2f}"
+    # ... (keep the existing format_price function)
 
 def main():
-    st.title("Product Price Configurator")
+    try:
+        st.title("Product Price Configurator")
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        c
+        st.write("Debug: Modules DataFrame")
+        st.write(modules_df)
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
+        with col2:
+            aum = st.selectbox("Select AuM Bracket", list(aum_brackets.keys()))
+        with col3:
+            contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
+
+        st.subheader("Access Methods")
+        selected_access_methods = {}
+        for method, multiplier in access_methods.items():
+            selected_access_methods[method] = st.checkbox(f"{method} ({multiplier*100:+.0f}%)")
+
+        st.subheader("Select Product Modules")
+        selected_modules = []
+        
+        # Group modules by Topic
+        grouped_modules = modules_df.groupby('Topic')
+        
+        for topic, group in grouped_modules:
+            st.write(f"**{topic}**")
+            for _, row in group.iterrows():
+                if st.checkbox(f"{row['Product module']} ({format_price(row['Price'], currency)})", key=row['Product module']):
+                    selected_modules.append(row['Product module'])
+            st.write("")  # Add some space between topics
+
+        if selected_modules:
+            st.subheader("Selected Modules")
+            selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
+            selected_df['Adjusted Price'] = selected_df['Price'] * aum_brackets[aum]
+            selected_df['Price'] = selected_df['Price'].apply(lambda x: format_price(x, currency))
+            selected_df['Adjusted Price'] = selected_df['Adjusted Price'].apply(lambda x: format_price(x, currency))
+            st.table(selected_df[['Topic', 'Product module', 'Price', 'Adjusted Price']])
+
+        base_price = 0
+        total_price = calculate_price(base_price, currency, aum, contract_length, selected_modules, selected_access_methods)
+        st.subheader("Total Price")
+        st.write(format_price(total_price, currency))
+
+        st.subheader("Additional Information")
+        st.write(f"Exchange rate: 1 EUR = {exchange_rates[currency]} {currency}")
+        st.write(f"AuM Multiplier: {aum_brackets[aum]}x")
+        st.write(f"Module Count Discount: {module_discounts.get(len(selected_modules), module_discounts[7] if len(selected_modules) > 7 else 0):.0%}")
+
+        st.write("Contract Length Discounts:")
+        df_discounts = pd.DataFrame(contract_discounts).T
+        df_discounts.columns = ['Year 1', 'Year 2', 'Year 3']
+        df_discounts = df_discounts.applymap(lambda x: f"{x}%" if x != 0 else "-")
+        st.table(df_discounts)
+
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+        st.error(traceback.format_exc())
+
+if __name__ == "__main__":
+    main()
