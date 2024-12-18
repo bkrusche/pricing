@@ -2,10 +2,12 @@ import streamlit as st
 import pandas as pd
 import traceback
 
+# Set Streamlit page configuration
+st.set_page_config(page_title="Product Price Configurator", layout="wide")
+
 # Initialize session state if not already done
 if 'init' not in st.session_state:
     st.session_state.init = True
-    st.set_page_config(page_title="Product Price Configurator", layout="wide")
 
 # Load configuration from CSV file
 @st.cache_data
@@ -33,17 +35,31 @@ except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
     st.stop()  # Stop execution if there's an error
 
-# Load module data from CSV file (keep this part unchanged)
+# Load module data from CSV file
 @st.cache_data
 def load_module_data():
     try:
-        return pd.read_csv('modules.csv')
+        df = pd.read_csv('modules.csv')
+        # Sort topics using a custom order
+        custom_order = [
+            "Regulatory",
+            "Climate",
+            "Risk",
+            "Impact",
+            "Nature & Biodiversity",
+            "Labels",
+            "Raw data",
+            "Benchmarks"
+        ]
+        df['Topic'] = pd.Categorical(df['Topic'], categories=custom_order, ordered=True)
+        return df.sort_values('Topic')
     except Exception as e:
         st.error(f"Error loading modules.csv: {str(e)}")
         return pd.DataFrame(columns=['Topic', 'Product module', 'Price'])
 
 modules_df = load_module_data()
 
+# Calculate discounts
 def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
     module_discount = module_discounts.get(module_count, module_discounts[7] if module_count > 7 else 0)
@@ -51,6 +67,7 @@ def calculate_discount(module_count, contract_length):
     total_discount = 1 - (1 - module_discount) * (1 - contract_discount)
     return total_discount
 
+# Format prices for display
 def format_price(price, currency):
     if currency == 'EUR':
         return f"€{price:,.2f}"
@@ -59,6 +76,7 @@ def format_price(price, currency):
     elif currency == 'GBP':
         return f"£{price:,.2f}"
 
+# Main app function
 def main():
     try:
         st.title("Product Price Configurator")
@@ -80,66 +98,50 @@ def main():
 
         st.subheader("Select Product Modules")
         selected_modules = []
-        
-        # Define the custom order for topics
-        custom_order = [
-            "Regulatory",
-            "Climate",
-            "Risk",
-            "Impact",
-            "Nature & Biodiversity",
-            "Labels",
-            "Raw data",
-            "Benchmarks"
-        ]
-        
-        # Sort modules based on custom order
-        modules_df['Topic'] = pd.Categorical(modules_df['Topic'], categories=custom_order, ordered=True)
-        modules_df.sort_values('Topic', inplace=True)
 
-        # Group modules by Topic and display them
         grouped_modules = modules_df.groupby('Topic')
-        
         for topic, group in grouped_modules:
             with st.expander(f"**{topic}**", expanded=True):
                 for _, row in group.iterrows():
                     if st.checkbox(f"{row['Product module']}", key=row['Product module']):
                         selected_modules.append(row['Product module'])
- 
+
         if selected_modules:
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-    
-           # Ensure 'Price' is numeric before any calculations
-            selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')  # Convert 'Price' to numeric, invalid parsing will result in NaN
 
-            # Now perform the multiplication
+            # Ensure 'Price' is numeric before any calculations
+            selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
+
+            # Calculate List Price
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-         
-        # Apply access method multiplier to List Price
-            access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
-            selected_df['List Price'] *= (1 + access_multiplier)  # Apply multiplier here
 
-            # Calculate discount based on adjusted List Price
+            # Apply access method multiplier
+            access_multiplier = max(
+                [access_methods[method] for method in selected_access_methods if selected_access_methods[method]],
+                default=0
+            )
+            selected_df['List Price'] *= (1 + access_multiplier)
+
+            # Calculate discounts and offer prices
             discount = calculate_discount(len(selected_modules), contract_length)
-    
             selected_df['Discount'] = f"{discount:.2%}"
-            selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)  # Calculate Offer Price based on adjusted List Price
-    
+            selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)
+
             # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
+            # Calculate and display total price
+            total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
+            st.subheader("Total Price")
+            st.write(format_price(total_price, currency))
 
-    
-        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-        st.subheader("Total Price")
-        st.write(format_price(total_price, currency))
+            # Display additional information
+            st.subheader("Additional Information")
+            st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
 
-        st.subheader("Additional Information")
-        st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
-        
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         st.error(traceback.format_exc())
