@@ -122,10 +122,34 @@ def main():
     
             selected_df['Discount'] = f"{discount:.2%}"
             selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)  # Calculate Offer Price based on adjusted List Price
-    
+
+
+            notes_to_display = []  # List to collect notes about unavailable access methods
+
             # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
+
+            # Check for unavailable access methods and collect notes
+            for _, row in selected_df.iterrows():
+                product_module = row['Product module']
+            if not row['Standard'] and selected_access_methods.get('Standard', False):
+                notes_to_display.append(f"{product_module} not available through Standard")
+            if not row['Webapp'] and selected_access_methods.get('Webapp', False):
+                notes_to_display.append(f"{product_module} not available through Webapp")
+            if not row['API'] and selected_access_methods.get('API', False):
+                notes_to_display.append(f"{product_module} not available through API")
+            if not row['Datafeed'] and selected_access_methods.get('Datafeed', False):
+                notes_to_display.append(f"{product_module} not available through Datafeed")
+
+# Display the table of selected modules
+st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
+
+# Display notes about unavailable access methods
+if notes_to_display:
+    for note in notes_to_display:
+        st.warning(note)
+
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
 
