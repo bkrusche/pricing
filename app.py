@@ -31,7 +31,7 @@ try:
         "3 year": [15, 10, 5]
     }
     
-    # Load exchange rates and convert them to a dictionary safely
+    # Load exchange rates and convert them to a dictionary safely.
     exchange_rates = {}
     for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
         key = row[1]  # Currency code (e.g., EUR)
@@ -120,7 +120,7 @@ def main():
 
             total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
             st.subheader("Total Price")
-            st.write(format_price(total_price, currency))
+            st.write(format_price(total_price))
 
         st.subheader("Additional Information")
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
