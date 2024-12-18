@@ -142,10 +142,19 @@ def main():
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
         
             # Initialize access method multiplier
-            access_multiplier = 0  
-            for method in selected_access_methods:
-                if selected_access_methods[method]:  # If the method is selected
-                    access_multiplier += access_method_factors.get(method, 0)  # Add the specific multiplier for that method
+            access_method_keys = (
+                str(selected_access_methods.get('Webapp (reports only)', False)).upper(),
+                str(selected_access_methods.get('Webapp (download)', False)).upper(),
+                str(selected_access_methods.get('API', False)).upper(),
+                str(selected_access_methods.get('Datafeed', False)).upper()
+            )
+            
+            # Get the price factor based on selected access methods
+            price_factor = access_method_factors.get(access_method_keys, 0)  # Default to 0 if no match found
+            
+            # Apply the price factor to adjust the list price
+            selected_df['List Price'] *= (1 + price_factor)
+
         
             # Apply total access multiplier
             selected_df['List Price'] *= (1 + access_multiplier)
