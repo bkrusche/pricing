@@ -28,20 +28,7 @@ try:
         "2 year": [10, 5, 0],
         "3 year": [15, 10, 5]
     }
-    
-    # Load exchange rates safely without eval
-    exchange_rates = {}
-    for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
-        key = row[2]  # Currency code (e.g., EUR)
-        value_str = row[3].strip()  # Get the string representation of the rate
-        value_str = value_str.replace(',', '').replace(' ', '')  # Clean the value string before converting
-        if '/' in value_str:
-            numerator, denominator = map(float, value_str.split('/'))
-            value = numerator / denominator
-        else:
-            value = float(value_str)  # Convert cleaned string to float
-        exchange_rates[key] = value
-
+    exchange_rates = {row[2]: eval(row[3]) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
     st.stop()  # Stop execution if there's an error
@@ -56,7 +43,6 @@ def load_module_data():
         return pd.DataFrame(columns=['Topic', 'Product module', 'Price'])
 
 modules_df = load_module_data()
-st.write(modules_df.columns.tolist())  # Debugging line to check column names
 
 def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
@@ -124,13 +110,8 @@ def main():
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
     
-            notes_to_display = []  # List to collect notes about unavailable access methods
-
-            # Ensure Price is treated as a float
-            selected_df['Price'] = selected_df['Price'].astype(float)
-
             # Calculate List Price
-            selected_df['List Price'] = selected_df['Price'] * float(aum_brackets[aum]) * float(exchange_rates[currency])
+            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
     
             # Apply access method multiplier to List Price
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
@@ -145,35 +126,19 @@ def main():
             # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
-
-            # Check for unavailable access methods and collect notes
-            for _, row in selected_df.iterrows():
-                product_module = row['Product module']
-                if not row['Standard'] and selected_access_methods.get('Standard', False):
-                    notes_to_display.append(f"{product_module} not available through Standard")
-                if not row['Webapp'] and selected_access_methods.get('Webapp', False):
-                    notes_to_display.append(f"{product_module} not available through Webapp")
-                if not row['API'] and selected_access_methods.get('API', False):
-                    notes_to_display.append(f"{product_module} not available through API")
-                if not row['Datafeed'] and selected_access_methods.get('Datafeed', False):
-                    notes_to_display.append(f"{product_module} not available through Datafeed")
-
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
-            total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-            st.subheader("Total Price")
-            st.write(format_price(total_price, currency))
 
-            # Display notes about unavailable access methods
-            if notes_to_display:
-                for note in notes_to_display:
-                    st.warning(note)
+    
+        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
+        st.subheader("Total Price")
+        st.write(format_price(total_price, currency))
 
         st.subheader("Additional Information")
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
         
     except Exception as e:
-        st.error(f"An error occurred: {str(e)}")  
+        st.error(f"An error occurred: {str(e)}")
         st.error(traceback.format_exc())
 
 if __name__ == "__main__":
