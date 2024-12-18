@@ -56,3 +56,32 @@ def main():
     with col1:
         currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
     with col2:
+        aum = st.selectbox("Select AuM Bracket", list(aum_brackets.keys()))
+    with col3:
+        contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
+
+    selected_modules = st.multiselect("Select Product Modules", modules_df['Product module'].tolist())
+
+    if selected_modules:
+        st.subheader("Selected Modules")
+        selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
+        selected_df['Adjusted Price'] = selected_df['Price'] * aum_brackets[aum]
+        st.table(selected_df[['Product module', 'Price', 'Adjusted Price']])
+
+    base_price = 0
+    total_price = calculate_price(base_price, currency, aum, contract_length, selected_modules)
+    st.subheader("Total Price")
+    st.write(f"{currency} {total_price:,.2f}")
+
+    st.subheader("Additional Information")
+    st.write(f"Exchange rate: 1 EUR = {exchange_rates[currency]} {currency}")
+    st.write(f"AuM Multiplier: {aum_brackets[aum]}x")
+
+    st.write("Contract Length Discounts:")
+    df_discounts = pd.DataFrame(contract_discounts).T
+    df_discounts.columns = ['Year 1', 'Year 2', 'Year 3']
+    df_discounts = df_discounts.applymap(lambda x: f"{x}%" if x != 0 else "-")
+    st.table(df_discounts)
+
+if __name__ == "__main__":
+    main()
