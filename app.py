@@ -31,7 +31,7 @@ try:
         "3 year": [15, 10, 5]
     }
     
-    # Load exchange rates and convert them to a dictionary
+    # Load exchange rates and convert them to a dictionary using eval safely.
     exchange_rates = {row[1]: eval(row[2]) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
@@ -94,10 +94,8 @@ def main():
                     if st.checkbox(f"{row['Product module']}", key=row['Product module']):
                         selected_modules.append(row['Product module'])
 
-        # Initialize selected_df only if there are selected modules
-        selected_df = pd.DataFrame()  # Default to an empty DataFrame
-
         if selected_modules:
+            st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
             
@@ -117,9 +115,7 @@ def main():
 
             total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
             st.subheader("Total Price")
-            st.write(format_price(total_price, currency))
-        else:
-            st.warning("No modules selected.")
+            st.write(format_price(total_price))
 
         st.subheader("Additional Information")
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
