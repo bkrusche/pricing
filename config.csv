@@ -1,0 +1,21 @@
+Type,Key,Value
+AuM Multiplier,<0.5Bn,0.40
+AuM Multiplier,0.5-1Bn,0.52
+AuM Multiplier,1-5Bn,0.62
+AuM Multiplier,5-15Bn,0.80
+AuM Multiplier,15-25Bn,1.00
+AuM Multiplier,25-50Bn,1.40
+AuM Multiplier,50-250Bn,1.80
+AuM Multiplier,250+Bn,2.20
+Access Method,Webapp (reports only),-0.15
+Access Method,Webapp (download),0
+Access Method,API,0
+Access Method,Datafeed,0.15
+Module Discount,2,0
+Module Discount,3,0.15
+Module Discount,4,0.20
+Module Discount,5,0.25
+Module Discount,6,0.30
+Module Discount,7,0.35
+Exchange Rate,USD to EUR,1/1.09
+Exchange Rate,USD to GBP,0.86/1.09
