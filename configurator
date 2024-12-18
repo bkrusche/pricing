@@ -41,32 +41,4 @@ def calculate_price(base_price, currency, aum, contract_length):
     # Convert to selected currency
     total_price = total_price * exchange_rates[currency]
     
-    return total_price
-
-st.title("Product Price Configurator")
-
-# Base price
-base_price = 100000  # Example base price
-st.write(f"Base Price: €{base_price:,.2f}")
-
-# Dropdowns
-currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
-aum = st.selectbox("Select AuM Bracket", list(aum_brackets.keys()))
-contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
-
-# Calculate and display total price
-total_price = calculate_price(base_price, currency, aum, contract_length)
-st.subheader("Total Price")
-st.write(f"{currency} {total_price:,.2f}")
-
-# Display additional information
-st.subheader("Additional Information")
-st.write(f"Exchange rate: 1 EUR = {exchange_rates[currency]} {currency}")
-st.write(f"AuM Multiplier: {aum_brackets[aum]}x")
-
-# Display contract length discounts
-st.write("Contract Length Discounts:")
-df_discounts = pd.DataFrame(contract_discounts).T * 100
-df_discounts.columns = ['Year 1', 'Year 2', 'Year 3']
-df_discounts = df_discounts.applymap(lambda x: f"{x}%" if x != 0 else "-")
-st.table(df_discounts)
+    retur
