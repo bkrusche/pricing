@@ -20,7 +20,6 @@ config_df = load_config()
 
 # Extract configurations from the DataFrame
 try:
-    # Load AuM multipliers, access methods, module discounts
     aum_brackets = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
     access_methods = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
     module_discounts = {int(row[2]): float(row[3]) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
@@ -36,8 +35,10 @@ try:
     exchange_rates = {}
     for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
         key = row[1]  # Currency code (e.g., EUR)
-        value = eval(row[2])  # Evaluate the expression safely
-        exchange_rates[key] = float(value)  # Ensure it's stored as a float
+        value_str = row[2].strip()  # Get the string representation of the rate
+        # Convert the string to a float value safely
+        value = eval(value_str) if '/' in value_str else float(value_str)
+        exchange_rates[key] = value
 
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
@@ -56,37 +57,4 @@ modules_df = load_module_data()
 
 def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
-    module_discount = module_discounts.get(module_count, module_discounts[7] if module_count > 7 else 0)
-    contract_discount = sum(contract_discounts[contract_length][:years]) / years / 100
-    total_discount = 1 - (1 - module_discount) * (1 - contract_discount)
-    return total_discount
-
-def format_price(price, currency):
-    if currency == 'EUR':
-        return f"€{price:,.2f}"
-    elif currency == 'USD':
-        return f"${price:,.2f}"
-    elif currency == 'GBP':
-        return f"£{price:,.2f}"
-
-def main():
-    try:
-        st.title("Product Price Configurator")
-
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
-        with col2:
-            aum = st.selectbox("Select AuM Bracket", list(aum_brackets.keys()))
-        with col3:
-            contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
-
-        st.subheader("Access Methods")
-        cols = st.columns(len(access_methods))
-        selected_access_methods = {}
-        for i, method in enumerate(access_methods.keys()):
-            with cols[i]:
-                selected_access_methods[method] = st.checkbox(f"{method}")
-
-        st.subheader("Select Product Modules")
-        selected_modules =
+    module_discount =
