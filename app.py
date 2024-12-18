@@ -31,8 +31,13 @@ try:
         "3 year": [15, 10, 5]
     }
     
-    # Load exchange rates and convert them to a dictionary using eval safely.
-    exchange_rates = {row[1]: eval(row[2]) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
+    # Load exchange rates and convert them to a dictionary safely
+    exchange_rates = {}
+    for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
+        key = row[1]  # Currency code (e.g., EUR)
+        value = eval(row[2])  # Evaluate the expression safely
+        exchange_rates[key] = value
+
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
     st.stop()  # Stop execution if there's an error
@@ -115,7 +120,7 @@ def main():
 
             total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
             st.subheader("Total Price")
-            st.write(format_price(total_price))
+            st.write(format_price(total_price, currency))
 
         st.subheader("Additional Information")
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
