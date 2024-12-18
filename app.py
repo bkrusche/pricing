@@ -142,6 +142,7 @@ def main():
                 if not row['Datafeed'] and selected_access_methods.get('Datafeed', False):
                     notes_to_display.append(f"{product_module} not available through Datafeed")
 
+
 # Display the table of selected modules
 st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
