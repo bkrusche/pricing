@@ -28,11 +28,11 @@ Nature & Biodiversity,"Nature & Biodiversity - Impact",15400,TURE,FALSE,FALSE,FA
 Labels,"PaB - Paris Aligned Benchmarks",12500,TURE,FALSE,FALSE,FALSE 
 Labels,"CTB - Climate Transition Benchmark",12500,TURE,FALSE,FALSE,FALSE 
 Labels,"FNG",12500,TURE,TURE,FALSE,TURE 
-Labels,SRI ,12500,TURE,TURE ,FALSE ,TUE 
-Raw data,"Emissions / Up to 10 metrics",15000 ,FALSE ,FALSE ,FALSE ,TUE 
-Raw data,"10 - 20 metrics",25000 ,FALSE ,FALSE ,FALSE ,TUE 
-Raw data,"20 - 30 metrics",35000 ,FALSE ,FALSE ,FALSE ,TUE 
-Raw data,"30 - 50 metrics",45000 ,FALSE ,FALSE ,FALSE ,TUE 
-Raw data,"50 - 100 metrics",80000 ,FALSE ,FALSE ,FALSE ,TUE 
-Benchmarks,"Benchmarks - SFDR PAI",35000 ,FALSE ,FALSE ,FALSE ,TUE 
-Benchmarks,"Benchmarks - SFDR PAI + EDCI",40000 ,FALSE ,FALSE ,FALSE ,TUE 
+Labels,SRI ,12500,TURE,TURE ,FALSE ,TRUE 
+Raw data,"Emissions / Up to 10 metrics",15000 ,FALSE ,FALSE ,FALSE ,TRUE 
+Raw data,"10 - 20 metrics",25000 ,FALSE ,FALSE ,FALSE ,TRUE 
+Raw data,"20 - 30 metrics",35000 ,FALSE ,FALSE ,FALSE ,TRUE 
+Raw data,"30 - 50 metrics",45000 ,FALSE ,FALSE ,FALSE ,TRUE 
+Raw data,"50 - 100 metrics",80000 ,FALSE ,FALSE ,FALSE ,TRUE 
+Benchmarks,"Benchmarks - SFDR PAI",35000 ,FALSE ,FALSE ,FALSE ,TRUE 
+Benchmarks,"Benchmarks - SFDR PAI + EDCI",40000 ,FALSE ,FALSE ,FALSE ,TRUE 
