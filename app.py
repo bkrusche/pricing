@@ -23,6 +23,14 @@ try:
     aum_brackets = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
     access_methods = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
     module_discounts = {int(row[2]): float(row[3]) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
+    
+    # Load contract discounts from a hardcoded dictionary or from CSV if needed
+    contract_discounts = {
+        "1 year": [0, 0, 0],
+        "2 year": [10, 5, 0],
+        "3 year": [15, 10, 5]
+    }
+    
     exchange_rates = {row[2]: eval(row[3]) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
@@ -99,16 +107,4 @@ def main():
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(format_price)
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
-        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-        st.subheader("Total Price")
-        st.write(format_price(total_price))
-
-        st.subheader("Additional Information")
-        st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
-        
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
-        st.error(traceback.format_exc())
-
-if __name__ == "__main__":
-    main()
+        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float
