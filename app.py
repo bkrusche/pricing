@@ -33,19 +33,18 @@ def load_module_data():
 
 modules_df = load_module_data()
 
-def calculate_price(base_price, currency, aum, contract_length, selected_modules, access_methods):
+def calculate_price(currency, aum, contract_length, selected_modules, selected_access_methods):
     aum_multiplier = aum_brackets[aum]
     years = int(contract_length.split()[0])
     
-    total_price = sum([base_price * (1 - contract_discounts[contract_length][year]/100) for year in range(years)])
-    
+    total_price = 0
     for module in selected_modules:
         module_price = modules_df[modules_df['Product module'] == module]['Price'].values[0]
         total_price += module_price * aum_multiplier * years
     
-    # Apply access method multiplier
-    access_multiplier = max([access_methods[method] for method in access_methods if access_methods[method]])
-    total_price *= (1 + access_multiplier)
+    # Apply contract length discount
+    for year in range(years):
+        total_price *= (1 - contract_discounts[contract_length][year]/100)
     
     # Apply module count discount
     module_count = len(selected_modules)
@@ -53,6 +52,10 @@ def calculate_price(base_price, currency, aum, contract_length, selected_modules
         total_price *= (1 - module_discounts[module_count])
     elif module_count > 7:
         total_price *= (1 - module_discounts[7])
+    
+    # Apply access method multiplier
+    access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
+    total_price *= (1 + access_multiplier)
     
     return total_price * exchange_rates[currency]
 
@@ -77,9 +80,11 @@ def main():
             contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
 
         st.subheader("Access Methods")
+        cols = st.columns(len(access_methods))
         selected_access_methods = {}
-        for method, multiplier in access_methods.items():
-            selected_access_methods[method] = st.checkbox(f"{method} ({multiplier*100:+.0f}%)")
+        for i, (method, multiplier) in enumerate(access_methods.items()):
+            with cols[i]:
+                selected_access_methods[method] = st.checkbox(f"{method}\n({multiplier*100:+.0f}%)")
 
         st.subheader("Select Product Modules")
         selected_modules = []
@@ -90,7 +95,7 @@ def main():
         for topic, group in grouped_modules:
             with st.expander(f"**{topic}**", expanded=True):
                 for _, row in group.iterrows():
-                    if st.checkbox(f"{row['Product module']} ({format_price(row['Price'] * aum_brackets[aum], currency)})", key=row['Product module']):
+                    if st.checkbox(f"{row['Product module']}", key=row['Product module']):
                         selected_modules.append(row['Product module'])
 
         if selected_modules:
@@ -103,7 +108,7 @@ def main():
             module_count = len(selected_modules)
             module_discount = module_discounts.get(module_count, module_discounts[7] if module_count > 7 else 0)
             contract_discount = sum(contract_discounts[contract_length][:years]) / years / 100
-            access_multiplier = max([access_methods[method] for method in access_methods if access_methods[method]])
+            access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
             
             selected_df['Offer Price'] = selected_df['List Price'] * (1 - module_discount) * (1 - contract_discount) * (1 + access_multiplier)
             
@@ -111,8 +116,7 @@ def main():
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Offer Price']])
 
-        base_price = 0
-        total_price = calculate_price(base_price, currency, aum, contract_length, selected_modules, selected_access_methods)
+        total_price = calculate_price(currency, aum, contract_length, selected_modules, selected_access_methods)
         st.subheader("Total Price")
         st.write(format_price(total_price, currency))
 
