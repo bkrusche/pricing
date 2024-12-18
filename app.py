@@ -20,6 +20,7 @@ config_df = load_config()
 
 # Extract configurations from the DataFrame
 try:
+    # Load AuM multipliers, access methods, module discounts
     aum_brackets = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
     access_methods = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
     module_discounts = {int(row[2]): float(row[3]) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
@@ -36,7 +37,7 @@ try:
     for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
         key = row[1]  # Currency code (e.g., EUR)
         value = eval(row[2])  # Evaluate the expression safely
-        exchange_rates[key] = value
+        exchange_rates[key] = float(value)  # Ensure it's stored as a float
 
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
@@ -88,46 +89,4 @@ def main():
                 selected_access_methods[method] = st.checkbox(f"{method}")
 
         st.subheader("Select Product Modules")
-        selected_modules = []
-        
-        # Group modules by Topic and display them
-        grouped_modules = modules_df.groupby('Topic')
-        
-        for topic, group in grouped_modules:
-            with st.expander(f"**{topic}**", expanded=True):
-                for _, row in group.iterrows():
-                    if st.checkbox(f"{row['Product module']}", key=row['Product module']):
-                        selected_modules.append(row['Product module'])
-
-        if selected_modules:
-            st.subheader("Selected Modules")
-            selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-            
-            # Calculate discount
-            discount = calculate_discount(len(selected_modules), contract_length)
-            
-            selected_df['Discount'] = f"{discount:.2%}"
-            selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)
-            
-            # Apply access method multiplier
-            access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
-            selected_df['Offer Price'] *= (1 + access_multiplier)
-            
-            selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
-            selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
-            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
-
-            total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-            st.subheader("Total Price")
-            st.write(format_price(total_price))
-
-        st.subheader("Additional Information")
-        st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
-        
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
-        st.error(traceback.format_exc())
-
-if __name__ == "__main__":
-    main()
+        selected_modules =
