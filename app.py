@@ -33,16 +33,19 @@ except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
     st.stop()  # Stop execution if there's an error
 
-# Load module data from CSV file (keep this part unchanged)
+# Load module data from CSV file
 @st.cache_data
 def load_module_data():
     try:
         return pd.read_csv('modules.csv')
     except Exception as e:
         st.error(f"Error loading modules.csv: {str(e)}")
-        return pd.DataFrame(columns=['Topic', 'Product module', 'Price'])
+        return pd.DataFrame(columns=['Topic', 'Product module', 'Price', 'Webapp (reports only)', 'Webapp (download)', 'API', 'Datafeed'])
 
 modules_df = load_module_data()
+
+# Ensure column names are stripped of extra spaces
+modules_df.columns = modules_df.columns.str.strip()
 
 def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
@@ -101,74 +104,4 @@ def main():
         grouped_modules = modules_df.groupby('Topic')
         
         for topic, group in grouped_modules:
-            with st.expander(f"**{topic}**", expanded=True):
-                for _, row in group.iterrows():
-                    if st.checkbox(f"{row['Product module']}", key=row['Product module']):
-                        selected_modules.append(row['Product module'])
- 
-        if selected_modules:
-            st.subheader("Selected Modules")
-            selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-    
-        if selected_modules:
-            st.subheader("Selected Modules")
-            selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-        
-            # Ensure 'Price' is numeric before any calculations
-            selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
-        
-            # Now perform the multiplication
-            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-        
-            # Apply access method multiplier to List Price
-            access_multiplier = max(
-                [access_methods[method] for method in selected_access_methods if selected_access_methods[method]]
-            )
-            selected_df['List Price'] *= (1 + access_multiplier)
-        
-            # Calculate discount based on adjusted List Price
-            discount = calculate_discount(len(selected_modules), contract_length)
-            selected_df['Discount'] = f"{discount:.2%}"
-            selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)
-        
-            # Format prices for display
-            selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
-            selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
-            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
-        
-            # Highlight unavailable module-access method combinations
-            incompatible_combinations = []
-            for module in selected_modules:
-                module_row = modules_df[modules_df['Product module'] == module].iloc[0]
-                for method, selected in selected_access_methods.items():
-                    if selected and not module_row[method]:
-                        incompatible_combinations.append((module, method))
-        
-            if incompatible_combinations:
-                st.markdown("### **Incompatible Access Methods**")
-                for module, method in incompatible_combinations:
-                    st.markdown(
-                        f'<p style="color: red;">⚠️ {module} is not available with {method}</p>',
-                        unsafe_allow_html=True,
-                    )
-        
-            # Calculate total price
-            total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-            st.subheader("Total Price")
-            st.write(format_price(total_price, currency))
-
-
-    
-        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-        st.subheader("Total Price")
-        st.write(format_price(total_price, currency))
-
-        st.subheader("Additional Information")
-        st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
-        
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
-        st.error(traceback.format_exc())
-
-if __name__ == "__main__":
-    main()
+            with st.expander(f"**{topic}**", expanded=True
