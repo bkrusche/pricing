@@ -144,9 +144,9 @@ def main():
                 module_row = modules_df[modules_df['Product module'] == module].iloc[0]
                 for method, selected in selected_access_methods.items():
                     # Ensure proper handling of availability column (True or False)
-                    st.write(f"- Selected: {selected}, Module: {module}, Method: {method}, Module row method: {module_row[method]} ")
 
-                    if module_row[method] == "FALSE":  # Check the availability (TRUE or FALSE)
+                    if selected == "TRUE": 
+                        st.write(f"- Selected: {selected}, Module: {module}, Method: {method}, Module row method: {module_row[method]} ")
                         incompatible_combinations.append((module, method))
                         
             
