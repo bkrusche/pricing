@@ -173,7 +173,7 @@ def main():
                 
 
             # Total price
-            total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
+            total_price = selected_df['Final Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
             st.subheader("Total Price")
             st.write(format_price(total_price, currency))
 
