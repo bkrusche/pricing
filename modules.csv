@@ -1,4 +1,4 @@
-Topic, Product module,Price,Webapp, Webapp, API,Datafeed
+Topic, Product module,Price,Webapp_report, Webapp_download, API,Datafeed
 Regulatory, SFDR PAIs,33000,TRUE, TRUE, TRUE,TRUE
 Regulatory, UK SDR,33000,TRUE, TRUE, FALSE,TRUE
 Regulatory, EU Taxonomy - product level reporting,33000,TRUE, TRUE, TRUE,TRUE
