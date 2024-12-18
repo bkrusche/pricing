@@ -147,7 +147,7 @@ def main():
                     # Ensure proper handling of availability column (True or False)
                     if selected and module_row[method] == "FALSE":  # Check the availability (TRUE or FALSE)
                         incompatible_combinations.append((module, method))
-                       st.write(f"- {module} is not available with {method}")
+                        st.write(f"- {module} is not available with {method}")
             
             # Display incompatible combinations
             if incompatible_combinations:
