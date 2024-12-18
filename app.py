@@ -68,9 +68,6 @@ def main():
     try:
         st.title("Product Price Configurator")
 
-        st.write("Debug: Modules DataFrame")
-        st.write(modules_df)
-
         col1, col2, col3 = st.columns(3)
         with col1:
             currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
@@ -91,19 +88,28 @@ def main():
         grouped_modules = modules_df.groupby('Topic')
         
         for topic, group in grouped_modules:
-            st.write(f"**{topic}**")
-            for _, row in group.iterrows():
-                if st.checkbox(f"{row['Product module']} ({format_price(row['Price'], currency)})", key=row['Product module']):
-                    selected_modules.append(row['Product module'])
-            st.write("")  # Add some space between topics
+            with st.expander(f"**{topic}**", expanded=True):
+                for _, row in group.iterrows():
+                    if st.checkbox(f"{row['Product module']} ({format_price(row['Price'] * aum_brackets[aum], currency)})", key=row['Product module']):
+                        selected_modules.append(row['Product module'])
 
         if selected_modules:
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-            selected_df['Adjusted Price'] = selected_df['Price'] * aum_brackets[aum]
-            selected_df['Price'] = selected_df['Price'].apply(lambda x: format_price(x, currency))
-            selected_df['Adjusted Price'] = selected_df['Adjusted Price'].apply(lambda x: format_price(x, currency))
-            st.table(selected_df[['Topic', 'Product module', 'Price', 'Adjusted Price']])
+            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum]
+            
+            # Calculate offer price
+            years = int(contract_length.split()[0])
+            module_count = len(selected_modules)
+            module_discount = module_discounts.get(module_count, module_discounts[7] if module_count > 7 else 0)
+            contract_discount = sum(contract_discounts[contract_length][:years]) / years / 100
+            access_multiplier = max([access_methods[method] for method in access_methods if access_methods[method]])
+            
+            selected_df['Offer Price'] = selected_df['List Price'] * (1 - module_discount) * (1 - contract_discount) * (1 + access_multiplier)
+            
+            selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
+            selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
+            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Offer Price']])
 
         base_price = 0
         total_price = calculate_price(base_price, currency, aum, contract_length, selected_modules, selected_access_methods)
