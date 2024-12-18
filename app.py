@@ -107,4 +107,16 @@ def main():
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(format_price)
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
-        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float
+        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
+        st.subheader("Total Price")
+        st.write(format_price(total_price))
+
+        st.subheader("Additional Information")
+        st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
+        
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+        st.error(traceback.format_exc())
+
+if __name__ == "__main__":
+    main()
