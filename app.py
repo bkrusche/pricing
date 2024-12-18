@@ -19,10 +19,14 @@ def load_config():
 config_df = load_config()
 
 # Extract configurations from the DataFrame
-aum_brackets = {row['Key']: float(row['Value']) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
-access_methods = {row['Key']: float(row['Value']) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
-module_discounts = {int(row['Key']): float(row['Value']) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
-exchange_rates = {row['Key']: eval(row['Value']) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
+try:
+    aum_brackets = {row['Key'].strip(): float(row['Value']) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
+    access_methods = {row['Key'].strip(): float(row['Value']) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
+    module_discounts = {int(row['Key']): float(row['Value']) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
+    exchange_rates = {row['Key']: eval(row['Value']) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
+except Exception as e:
+    st.error(f"Error processing configuration data: {str(e)}")
+    st.stop()  # Stop execution if there's an error
 
 # Load module data from CSV file (keep this part unchanged)
 @st.cache_data
