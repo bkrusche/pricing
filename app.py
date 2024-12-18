@@ -23,14 +23,11 @@ try:
     aum_brackets = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
     access_methods = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
     module_discounts = {int(row[2]): float(row[3]) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
-    
-    # Load contract discounts from a hardcoded dictionary or from CSV if needed
     contract_discounts = {
         "1 year": [0, 0, 0],
         "2 year": [10, 5, 0],
         "3 year": [15, 10, 5]
     }
-    
     exchange_rates = {row[2]: eval(row[3]) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
@@ -54,8 +51,13 @@ def calculate_discount(module_count, contract_length):
     total_discount = 1 - (1 - module_discount) * (1 - contract_discount)
     return total_discount
 
-def format_price(price):
-    return f"${price:,.2f}"  # Assuming USD is the base currency
+def format_price(price, currency):
+    if currency == 'EUR':
+        return f"€{price:,.2f}"
+    elif currency == 'USD':
+        return f"${price:,.2f}"
+    elif currency == 'GBP':
+        return f"£{price:,.2f}"
 
 def main():
     try:
@@ -79,6 +81,22 @@ def main():
         st.subheader("Select Product Modules")
         selected_modules = []
         
+        # Define the custom order for topics
+        custom_order = [
+            "Regulatory",
+            "Climate",
+            "Risk",
+            "Impact",
+            "Nature & Biodiversity",
+            "Labels",
+            "Raw data",
+            "Benchmarks"
+        ]
+        
+        # Sort modules based on custom order
+        modules_df['Topic'] = pd.Categorical(modules_df['Topic'], categories=custom_order, ordered=True)
+        modules_df.sort_values('Topic', inplace=True)
+
         # Group modules by Topic and display them
         grouped_modules = modules_df.groupby('Topic')
         
@@ -103,13 +121,13 @@ def main():
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
             selected_df['Offer Price'] *= (1 + access_multiplier)
             
-            selected_df['List Price'] = selected_df['List Price'].apply(format_price)
-            selected_df['Offer Price'] = selected_df['Offer Price'].apply(format_price)
+            selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
+            selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
         total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
         st.subheader("Total Price")
-        st.write(format_price(total_price))
+        st.write(format_price(total_price, currency))
 
         st.subheader("Additional Information")
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
