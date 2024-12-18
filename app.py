@@ -138,8 +138,8 @@ def main():
             for module in selected_modules:
                 module_row = modules_df[modules_df['Product module'] == module].iloc[0]
                 for method, selected in selected_access_methods.items():
-                    # Safely access the column and check for availability
-                    if selected and not module_row.get(method, False):
+                    # Check availability of each access method for the module
+                    if selected and not bool(module_row.get(method, False)):
                         incompatible_combinations.append((module, method))
 
             if incompatible_combinations:
