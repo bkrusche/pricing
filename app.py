@@ -44,6 +44,9 @@ def load_module_data():
 
 modules_df = load_module_data()
 
+# Clean column names by stripping spaces (to avoid issues)
+modules_df.columns = modules_df.columns.str.strip()
+
 # Function to calculate discounts
 def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
