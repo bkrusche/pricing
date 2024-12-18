@@ -109,25 +109,49 @@ def main():
         if selected_modules:
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-    
+            
+            notes_to_display = []  # Add this line here
+        
             # Calculate List Price
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-    
+        
             # Apply access method multiplier to List Price
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
             selected_df['List Price'] *= (1 + access_multiplier)  # Apply multiplier here
-
+        
             # Calculate discount based on adjusted List Price
             discount = calculate_discount(len(selected_modules), contract_length)
-    
+        
             selected_df['Discount'] = f"{discount:.2%}"
             selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)  # Calculate Offer Price based on adjusted List Price
-    
+        
             # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
+        
+            # Check for unavailable access methods and collect notes - ADD THIS BLOCK HERE
+            for _, row in selected_df.iterrows():
+                product_module = row['Product module']
+                if not row['Standard'] and selected_access_methods.get('Standard', False):
+                    notes_to_display.append(f"{product_module} not available through Standard")
+                if not row['Webapp'] and selected_access_methods.get('Webapp', False):
+                    notes_to_display.append(f"{product_module} not available through Webapp")
+                if not row['API'] and selected_access_methods.get('API', False):
+                    notes_to_display.append(f"{product_module} not available through API")
+                if not row['Datafeed'] and selected_access_methods.get('Datafeed', False):
+                    notes_to_display.append(f"{product_module} not available through Datafeed")
+        
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
-
+        
+            total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
+            st.subheader("Total Price")
+            st.write(format_price(total_price))
+        
+            # Display notes about unavailable access methods - ADD THIS BLOCK HERE
+            if notes_to_display:
+                for note in notes_to_display:
+                    st.warning(note)
+        
 
     
         total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
