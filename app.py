@@ -32,31 +32,34 @@ try:
     # Load exchange rates safely without eval
     exchange_rates = {}
     for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
-        key = row[2]  # Currency code (e.g., EUR)
-        value_str = row[3].strip()  # Get the string representation of the rate
-        value_str = value_str.replace(',', '').replace(' ', '')  # Clean the value string before converting
+        key = row[1]  # Currency code (e.g., EUR)
+        value_str = row[2].strip()  # Get the string representation of the rate
+        
+        # Convert the string to a float value safely
         if '/' in value_str:
             numerator, denominator = map(float, value_str.split('/'))
             value = numerator / denominator
         else:
-            value = float(value_str)  # Convert cleaned string to float
+            value = float(value_str)
+        
         exchange_rates[key] = value
 
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
     st.stop()  # Stop execution if there's an error
 
-# Load module data from CSV file (keep this part unchanged)
+# Load module data from CSV file
 @st.cache_data
 def load_module_data():
     try:
-        return pd.read_csv('modules.csv')
+        modules_df = pd.read_csv('modules.csv')
+        modules_df['Price'] = modules_df['Price'].astype(float)  # Ensure Price is treated as a float for calculations.
+        return modules_df
     except Exception as e:
         st.error(f"Error loading modules.csv: {str(e)}")
-        return pd.DataFrame(columns=['Topic', 'Product module', 'Price'])
+        return pd.DataFrame(columns=['Topic', 'Product module', 'Price', 'Standard', 'Webapp', 'API', 'Datafeed'])
 
 modules_df = load_module_data()
-st.write(modules_df.columns.tolist())  # Debugging line to check column names
 
 def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
@@ -126,11 +129,8 @@ def main():
     
             notes_to_display = []  # List to collect notes about unavailable access methods
 
-            # Ensure Price is treated as a float
-            selected_df['Price'] = selected_df['Price'].astype(float)
-
             # Calculate List Price
-            selected_df['List Price'] = selected_df['Price'] * float(aum_brackets[aum]) * float(exchange_rates[currency])
+            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
     
             # Apply access method multiplier to List Price
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
@@ -173,7 +173,7 @@ def main():
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
         
     except Exception as e:
-        st.error(f"An error occurred: {str(e)}")  
+        st.error(f"An error occurred: {str(e)}")
         st.error(traceback.format_exc())
 
 if __name__ == "__main__":
