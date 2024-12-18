@@ -7,22 +7,24 @@ if 'init' not in st.session_state:
     st.session_state.init = True
     st.set_page_config(page_title="Product Price Configurator", layout="wide")
 
-# Load exchange rates and AuM brackets
-exchange_rates = {"USD": 1, "EUR": 1/1.09, "GBP": 0.86/1.09}  # Updated to make USD the base currency
-aum_brackets = {"<0.5Bn": 0.40, "0.5-1Bn": 0.52, "1-5Bn": 0.62, "5-15Bn": 0.80, "15-25Bn": 1.00, "25-50Bn": 1.40, "50-250Bn": 1.80, "250+Bn": 2.20}
-contract_discounts = {"1 year": [0, 0, 0], "2 year": [10, 5, 0], "3 year": [15, 10, 5]}
+# Load configuration from CSV file
+@st.cache_data
+def load_config():
+    try:
+        return pd.read_csv('config.csv')
+    except Exception as e:
+        st.error(f"Error loading config.csv: {str(e)}")
+        return pd.DataFrame(columns=['Type', 'Key', 'Value'])
 
-# Access method multipliers
-access_methods = {
-    "Webapp (reports only)": -0.15,
-    "Webapp (download)": 0,
-    "API": 0,
-    "Datafeed": 0.15
-}
+config_df = load_config()
 
-# Module count discounts
-module_discounts = {2: 0, 3: 0.15, 4: 0.20, 5: 0.25, 6: 0.30, 7: 0.35}
+# Extract configurations from the DataFrame
+aum_brackets = {row['Key']: float(row['Value']) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
+access_methods = {row['Key']: float(row['Value']) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
+module_discounts = {int(row['Key']): float(row['Value']) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
+exchange_rates = {row['Key']: eval(row['Value']) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
 
+# Load module data from CSV file (keep this part unchanged)
 @st.cache_data
 def load_module_data():
     try:
@@ -40,13 +42,8 @@ def calculate_discount(module_count, contract_length):
     total_discount = 1 - (1 - module_discount) * (1 - contract_discount)
     return total_discount
 
-def format_price(price, currency):
-    if currency == 'EUR':
-        return f"€{price:,.2f}"
-    elif currency == 'USD':
-        return f"${price:,.2f}"
-    elif currency == 'GBP':
-        return f"£{price:,.2f}"
+def format_price(price):
+    return f"${price:,.2f}"  # Assuming USD is the base currency
 
 def main():
     try:
@@ -70,22 +67,6 @@ def main():
         st.subheader("Select Product Modules")
         selected_modules = []
         
-        # Define the custom order for topics
-        custom_order = [
-            "Regulatory",
-            "Climate",
-            "Risk",
-            "Impact",
-            "Nature & Biodiversity",
-            "Labels",
-            "Raw data",
-            "Benchmarks"
-        ]
-        
-        # Sort modules based on custom order
-        modules_df['Topic'] = pd.Categorical(modules_df['Topic'], categories=custom_order, ordered=True)
-        modules_df.sort_values('Topic', inplace=True)
-
         # Group modules by Topic and display them
         grouped_modules = modules_df.groupby('Topic')
         
@@ -110,25 +91,17 @@ def main():
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
             selected_df['Offer Price'] *= (1 + access_multiplier)
             
-            selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
-            selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
+            selected_df['List Price'] = selected_df['List Price'].apply(format_price)
+            selected_df['Offer Price'] = selected_df['Offer Price'].apply(format_price)
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
         total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
         st.subheader("Total Price")
-        st.write(format_price(total_price, currency))
+        st.write(format_price(total_price))
 
         st.subheader("Additional Information")
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
-        st.write(f"AuM Multiplier: {aum_brackets[aum]}x")
-        st.write(f"Module Count Discount: {module_discounts.get(len(selected_modules), module_discounts[7] if len(selected_modules) > 7 else 0):.0%}")
-
-        st.write("Contract Length Discounts:")
-        df_discounts = pd.DataFrame(contract_discounts).T
-        df_discounts.columns = ['Year 1', 'Year 2', 'Year 3']
-        df_discounts = df_discounts.applymap(lambda x: f"{x}%" if x != 0 else "-")
-        st.table(df_discounts)
-
+        
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         st.error(traceback.format_exc())
