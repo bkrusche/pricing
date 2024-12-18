@@ -1,4 +1,5 @@
-Regulatory, SFDR PAIs,33000,TRUE, TRUE,TRUE
+Topic, Product module,Price,Webapp_report, Webapp_download, API,Datafeed
+Regulatory, SFDR PAIs,33000,TRUE, TRUE, TRUE,TRUE
 Regulatory, UK SDR,33000,
 Regulatory, EU Taxonomy - product level reporting,33000,
 Regulatory, EU Taxonomy (incl. entity level Article 8 prefilled annexes IV & X),48000,
