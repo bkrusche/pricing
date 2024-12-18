@@ -84,6 +84,8 @@ def format_price(price, currency):
 # Main application logic
 def main():
     try:
+        config_df, _ = load_config()  # Load config without needing access method factors here
+        access_method_factors = load_access_methods()  # Load access methods
         st.title("Product Price Configurator")
 
         # User inputs
@@ -174,7 +176,6 @@ def main():
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Bundle Discount', 'Multi-Year Discount', 'AE Discount', 'Final Price']])
         
 
-
             # Check incompatible module-access method combinations
             incompatible_combinations = []
             for module in selected_modules:
@@ -194,7 +195,7 @@ def main():
                         f'<p style="color: red;">⚠️ {module} is not available with {method}</p>',
                         unsafe_allow_html=True,
                     )
-                
+
 
             # Total price
             total_price = selected_df['Final Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
