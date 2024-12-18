@@ -1,0 +1,72 @@
+import streamlit as st
+import pandas as pd
+
+# Exchange rates (as of the current date)
+exchange_rates = {
+    "EUR": 1,
+    "USD": 1.09,
+    "GBP": 0.86
+}
+
+# AuM brackets and multipliers
+aum_brackets = {
+    "<0.5Bn": 0.40,
+    "0.5-1Bn": 0.52,
+    "1-5Bn": 0.62,
+    "5-15Bn": 0.80,
+    "15-25Bn": 1.00,
+    "25-50Bn": 1.40,
+    "50-250Bn": 1.80,
+    "250+Bn": 2.20
+}
+
+# Contract length discounts
+contract_discounts = {
+    "1 year": [0, 0, 0],
+    "2 year": [0.10, 0.05, 0],
+    "3 year": [0.15, 0.10, 0.05]
+}
+
+def calculate_price(base_price, currency, aum, contract_length):
+    # Apply AuM multiplier
+    price = base_price * aum_brackets[aum]
+    
+    # Apply contract length discounts
+    years = int(contract_length.split()[0])
+    total_price = 0
+    for year in range(years):
+        year_price = price * (1 - contract_discounts[contract_length][year])
+        total_price += year_price
+    
+    # Convert to selected currency
+    total_price = total_price * exchange_rates[currency]
+    
+    return total_price
+
+st.title("Product Price Configurator")
+
+# Base price
+base_price = 100000  # Example base price
+st.write(f"Base Price: €{base_price:,.2f}")
+
+# Dropdowns
+currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
+aum = st.selectbox("Select AuM Bracket", list(aum_brackets.keys()))
+contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
+
+# Calculate and display total price
+total_price = calculate_price(base_price, currency, aum, contract_length)
+st.subheader("Total Price")
+st.write(f"{currency} {total_price:,.2f}")
+
+# Display additional information
+st.subheader("Additional Information")
+st.write(f"Exchange rate: 1 EUR = {exchange_rates[currency]} {currency}")
+st.write(f"AuM Multiplier: {aum_brackets[aum]}x")
+
+# Display contract length discounts
+st.write("Contract Length Discounts:")
+df_discounts = pd.DataFrame(contract_discounts).T * 100
+df_discounts.columns = ['Year 1', 'Year 2', 'Year 3']
+df_discounts = df_discounts.applymap(lambda x: f"{x}%" if x != 0 else "-")
+st.table(df_discounts)
