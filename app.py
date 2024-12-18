@@ -133,14 +133,14 @@ def main():
             # Check for unavailable access methods and collect notes
             for _, row in selected_df.iterrows():
                 product_module = row['Product module']
-            if not row['Standard'] and selected_access_methods.get('Standard', False):
-                notes_to_display.append(f"{product_module} not available through Standard")
-            if not row['Webapp'] and selected_access_methods.get('Webapp', False):
-                notes_to_display.append(f"{product_module} not available through Webapp")
-            if not row['API'] and selected_access_methods.get('API', False):
-                notes_to_display.append(f"{product_module} not available through API")
-            if not row['Datafeed'] and selected_access_methods.get('Datafeed', False):
-                notes_to_display.append(f"{product_module} not available through Datafeed")
+                if not row['Standard'] and selected_access_methods.get('Standard', False):
+                    notes_to_display.append(f"{product_module} not available through Standard")
+                if not row['Webapp'] and selected_access_methods.get('Webapp', False):
+                    notes_to_display.append(f"{product_module} not available through Webapp")
+                if not row['API'] and selected_access_methods.get('API', False):
+                    notes_to_display.append(f"{product_module} not available through API")
+                if not row['Datafeed'] and selected_access_methods.get('Datafeed', False):
+                    notes_to_display.append(f"{product_module} not available through Datafeed")
 
 # Display the table of selected modules
 st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
