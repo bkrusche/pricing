@@ -56,6 +56,7 @@ def load_module_data():
         return pd.DataFrame(columns=['Topic', 'Product module', 'Price'])
 
 modules_df = load_module_data()
+st.write(modules_df.columns.tolist())  # Debugging line to check column names
 
 def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
@@ -172,7 +173,7 @@ def main():
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
         
     except Exception as e:
-        st.error(f"An error occurred: {str(e)}")  # Ensure this line is properly formatted
+        st.error(f"An error occurred: {str(e)}")  
         st.error(traceback.format_exc())
 
 if __name__ == "__main__":
