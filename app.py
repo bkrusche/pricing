@@ -105,7 +105,7 @@ def main():
                 for _, row in group.iterrows():
                     if st.checkbox(f"{row['Product module']}", key=row['Product module']):
                         selected_modules.append(row['Product module'])
-
+ 
         if selected_modules:
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
