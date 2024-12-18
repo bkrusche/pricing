@@ -137,8 +137,10 @@ def main():
             
             # Add AE Discount column with dropdown selection for up to 15%
             ae_discount_options = [0, 5, 10, 15]  # Define options for AE Discount
-            ae_discount_percentage = st.selectbox("Select AE Discount (%)", ae_discount_options) / 100  # Dropdown for AE Discount
+            col_ae_discount = st.columns(1)[0]  # Create a single-column layout for the dropdown
+            ae_discount_percentage = col_ae_discount.selectbox("Select AE Discount (%)", ae_discount_options) / 100  # Dropdown for AE Discount
             selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
+
         
             # Calculate final price considering all discounts
             selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
