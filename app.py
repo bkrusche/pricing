@@ -116,26 +116,39 @@ def main():
         if selected_modules:
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-
+        
             # Ensure 'Price' is numeric
             selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
-
+        
             # Calculate list price
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-
+        
             # Apply access method multiplier
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
             selected_df['List Price'] *= (1 + access_multiplier)
-
+        
             # Calculate discounts
-            discount = calculate_discount(len(selected_modules), contract_length)
-            selected_df['Discount'] = f"{discount:.2%}"
-            selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)
-
-            # Format prices
+            bundle_discount = calculate_discount(len(selected_modules), contract_length)  # Use existing function for module discount
+            multi_year_discount = sum(contract_discounts[contract_length]) / 100  # Calculate multi-year discount based on contract length
+        
+            # Add new discount columns
+            selected_df['Bundle Discount'] = f"{bundle_discount:.2%}"
+            selected_df['Multi-Year Discount'] = f"{multi_year_discount:.2%}"
+            
+            # Add AE Discount column with selection up to 15%
+            ae_discount_percentage = st.slider("Select AE Discount (%)", 0, 15, 0) / 100  # Slider for AE Discount
+            selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
+        
+            # Calculate final price considering all discounts
+            selected_df['Final Price'] = selected_df['List Price'].str.replace(r'[^\d.]', '', regex=True).astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
+        
+            # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
-            selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
-            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
+            selected_df['Final Price'] = selected_df['Final Price'].apply(lambda x: format_price(x, currency))
+        
+            # Display results table with new columns
+            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Bundle Discount', 'Multi-Year Discount', 'AE Discount', 'Final Price']])
+        
 
 
             # Check incompatible module-access method combinations
