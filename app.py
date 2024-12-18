@@ -151,7 +151,8 @@ def main():
             
             # Get the price factor based on selected access methods
             access_multiplier = access_method_factors.get(access_method_keys, 0)  # Default to 0 if no match found
-            
+            st.write(f"Price Factor: {price_factor:.2%}")  # Display as a percentage
+
             # Apply total access multiplier
             selected_df['List Price'] *= (1 + access_multiplier)
         
