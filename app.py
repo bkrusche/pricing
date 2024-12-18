@@ -140,7 +140,7 @@ def main():
             selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
         
             # Calculate final price considering all discounts
-            selected_df['Final Price'] = selected_df['List Price'].str.replace(r'[^\d.]', '', regex=True).astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
+            selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
         
             # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
