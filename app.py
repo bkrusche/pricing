@@ -144,6 +144,7 @@ def main():
                 module_row = modules_df[modules_df['Product module'] == module].iloc[0]
                 for method, selected in selected_access_methods.items():
                     # Ensure proper handling of availability column (True or False)
+                    st.write(f"- Selected: {selected}, Module: {module}, Method: {method}, Module row method: {module_row[method]} ")
                     if selected == "TRUE":
                         if selected != module_row[method]: 
                             st.write(f"- Selected: {selected}, Module: {module}, Method: {method}, Module row method: {module_row[method]} ")
