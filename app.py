@@ -142,6 +142,8 @@ def main():
             for module in selected_modules:
                 module_row = modules_df[modules_df['Product module'] == module].iloc[0]
                 for method, selected in selected_access_methods.items():
+                    # Debugging print
+                    st.write(f"Checking module: {module}, access method: {method}, availability: {module_row[method]}")
                     if selected and module_row[method] == "FALSE":  # Check the availability (TRUE or FALSE)
                         incompatible_combinations.append((module, method))
 
