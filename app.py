@@ -109,22 +109,27 @@ def main():
         if selected_modules:
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
+    
+            # Calculate List Price
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-            
-            # Calculate discount
-            discount = calculate_discount(len(selected_modules), contract_length)
-            
-            selected_df['Discount'] = f"{discount:.2%}"
-            selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)
-            
-            # Apply access method multiplier
+    
+            # Apply access method multiplier to List Price
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
-            selected_df['Offer Price'] *= (1 + access_multiplier)
-            
+            selected_df['List Price'] *= (1 + access_multiplier)  # Apply multiplier here
+
+            # Calculate discount based on adjusted List Price
+            discount = calculate_discount(len(selected_modules), contract_length)
+    
+            selected_df['Discount'] = f"{discount:.2%}"
+            selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)  # Calculate Offer Price based on adjusted List Price
+    
+            # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
+
+    
         total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
         st.subheader("Total Price")
         st.write(format_price(total_price, currency))
