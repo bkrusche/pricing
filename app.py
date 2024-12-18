@@ -23,12 +23,16 @@ try:
     aum_brackets = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'AuM Multiplier'].itertuples()}
     access_methods = {row[2].strip(): float(row[3]) for row in config_df[config_df['Type'] == 'Access Method'].itertuples()}
     module_discounts = {int(row[2]): float(row[3]) for row in config_df[config_df['Type'] == 'Module Discount'].itertuples()}
+    
+    # Load contract discounts from a hardcoded dictionary or from CSV if needed
     contract_discounts = {
         "1 year": [0, 0, 0],
         "2 year": [10, 5, 0],
         "3 year": [15, 10, 5]
     }
-    exchange_rates = {row[2]: eval(row[3]) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
+    
+    # Load exchange rates and convert them to a dictionary
+    exchange_rates = {row[1]: eval(row[2]) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
     st.stop()  # Stop execution if there's an error
@@ -81,60 +85,10 @@ def main():
         st.subheader("Select Product Modules")
         selected_modules = []
         
-        # Define the custom order for topics
-        custom_order = [
-            "Regulatory",
-            "Climate",
-            "Risk",
-            "Impact",
-            "Nature & Biodiversity",
-            "Labels",
-            "Raw data",
-            "Benchmarks"
-        ]
-        
-        # Sort modules based on custom order
-        modules_df['Topic'] = pd.Categorical(modules_df['Topic'], categories=custom_order, ordered=True)
-        modules_df.sort_values('Topic', inplace=True)
-
         # Group modules by Topic and display them
         grouped_modules = modules_df.groupby('Topic')
         
         for topic, group in grouped_modules:
             with st.expander(f"**{topic}**", expanded=True):
                 for _, row in group.iterrows():
-                    if st.checkbox(f"{row['Product module']}", key=row['Product module']):
-                        selected_modules.append(row['Product module'])
-
-        if selected_modules:
-            st.subheader("Selected Modules")
-            selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-            
-            # Calculate discount
-            discount = calculate_discount(len(selected_modules), contract_length)
-            
-            selected_df['Discount'] = f"{discount:.2%}"
-            selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)
-            
-            # Apply access method multiplier
-            access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
-            selected_df['Offer Price'] *= (1 + access_multiplier)
-            
-            selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
-            selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
-            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
-
-        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-        st.subheader("Total Price")
-        st.write(format_price(total_price, currency))
-
-        st.subheader("Additional Information")
-        st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
-        
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
-        st.error(traceback.format_exc())
-
-if __name__ == "__main__":
-    main()
+                    if st.checkbox(f"{row['Product module']}", key=row['Product modu
