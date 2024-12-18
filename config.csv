@@ -10,13 +10,13 @@ AuM Multiplier,250+Bn,2.20
 Access Method,Webapp (reports only),-0.15
 Access Method,Webapp (download),0
 Access Method,API,0
-Access Method,Datafeed,0.15
-Module Discount,2,0
-Module Discount,3,0.15
-Module Discount,4,0.20
-Module Discount,5,0.25
-Module Discount,6,0.30
-Module Discount,7,0.35
-Exchange Rate,EUR,1/1.09
-Exchange Rate,GBP,0.86/1.09
-Exchange Rate,USD,1/1
+Access Method,Datafeed,+0.15 
+Module Discount,"2",0 
+Module Discount,"3",0.15 
+Module Discount,"4",0.20 
+Module Discount,"5",0.25 
+Module Discount,"6",0.30 
+Module Discount,"7",0.35 
+Exchange Rate,EUR,"1/1.09"
+Exchange Rate,GBP,"0.86/1.09"
+Exchange Rate,USD,"1/1"
