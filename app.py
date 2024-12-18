@@ -34,8 +34,7 @@ try:
     for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
         key = row[2]  # Currency code (e.g., EUR)
         value_str = row[3].strip()  # Get the string representation of the rate
-        # Clean the value string before converting
-        value_str = value_str.replace(',', '').replace(' ', '')  # Remove commas and spaces
+        value_str = value_str.replace(',', '').replace(' ', '')  # Clean the value string before converting
         if '/' in value_str:
             numerator, denominator = map(float, value_str.split('/'))
             value = numerator / denominator
@@ -126,8 +125,11 @@ def main():
     
             notes_to_display = []  # List to collect notes about unavailable access methods
 
+            # Ensure Price is treated as a float
+            selected_df['Price'] = selected_df['Price'].astype(float)
+
             # Calculate List Price
-            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
+            selected_df['List Price'] = selected_df['Price'] * float(aum_brackets[aum]) * float(exchange_rates[currency])
     
             # Apply access method multiplier to List Price
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
@@ -170,8 +172,4 @@ def main():
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
         
     except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
-        st.error(traceback.format_exc())
-
-if __name__ == "__main__":
-    main()
+        st.error(f"An erro
