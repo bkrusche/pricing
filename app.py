@@ -8,7 +8,7 @@ if 'init' not in st.session_state:
     st.set_page_config(page_title="Product Price Configurator", layout="wide")
 
 # Load exchange rates and AuM brackets
-exchange_rates = {"EUR": 1, "USD": 1.09, "GBP": 0.86}
+exchange_rates = {"USD": 1, "EUR": 1/1.09, "GBP": 0.86/1.09}  # Updated to make USD the base currency
 aum_brackets = {"<0.5Bn": 0.40, "0.5-1Bn": 0.52, "1-5Bn": 0.62, "5-15Bn": 0.80, "15-25Bn": 1.00, "25-50Bn": 1.40, "50-250Bn": 1.80, "250+Bn": 2.20}
 contract_discounts = {"1 year": [0, 0, 0], "2 year": [10, 5, 0], "3 year": [15, 10, 5]}
 
@@ -33,31 +33,12 @@ def load_module_data():
 
 modules_df = load_module_data()
 
-def calculate_price(currency, aum, contract_length, selected_modules, selected_access_methods):
-    aum_multiplier = aum_brackets[aum]
+def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
-    
-    total_price = 0
-    for module in selected_modules:
-        module_price = modules_df[modules_df['Product module'] == module]['Price'].values[0]
-        total_price += module_price * aum_multiplier * years
-    
-    # Apply contract length discount
-    for year in range(years):
-        total_price *= (1 - contract_discounts[contract_length][year]/100)
-    
-    # Apply module count discount
-    module_count = len(selected_modules)
-    if module_count in module_discounts:
-        total_price *= (1 - module_discounts[module_count])
-    elif module_count > 7:
-        total_price *= (1 - module_discounts[7])
-    
-    # Apply access method multiplier
-    access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
-    total_price *= (1 + access_multiplier)
-    
-    return total_price * exchange_rates[currency]
+    module_discount = module_discounts.get(module_count, module_discounts[7] if module_count > 7 else 0)
+    contract_discount = sum(contract_discounts[contract_length][:years]) / years / 100
+    total_discount = 1 - (1 - module_discount) * (1 - contract_discount)
+    return total_discount
 
 def format_price(price, currency):
     if currency == 'EUR':
@@ -82,9 +63,9 @@ def main():
         st.subheader("Access Methods")
         cols = st.columns(len(access_methods))
         selected_access_methods = {}
-        for i, (method, multiplier) in enumerate(access_methods.items()):
+        for i, method in enumerate(access_methods.keys()):
             with cols[i]:
-                selected_access_methods[method] = st.checkbox(f"{method}\n({multiplier*100:+.0f}%)")
+                selected_access_methods[method] = st.checkbox(f"{method}")
 
         st.subheader("Select Product Modules")
         selected_modules = []
@@ -101,27 +82,28 @@ def main():
         if selected_modules:
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum]
+            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
             
-            # Calculate offer price
-            years = int(contract_length.split()[0])
-            module_count = len(selected_modules)
-            module_discount = module_discounts.get(module_count, module_discounts[7] if module_count > 7 else 0)
-            contract_discount = sum(contract_discounts[contract_length][:years]) / years / 100
+            # Calculate discount
+            discount = calculate_discount(len(selected_modules), contract_length)
+            
+            selected_df['Discount'] = f"{discount:.2%}"
+            selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)
+            
+            # Apply access method multiplier
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
-            
-            selected_df['Offer Price'] = selected_df['List Price'] * (1 - module_discount) * (1 - contract_discount) * (1 + access_multiplier)
+            selected_df['Offer Price'] *= (1 + access_multiplier)
             
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
-            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Offer Price']])
+            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
-        total_price = calculate_price(currency, aum, contract_length, selected_modules, selected_access_methods)
+        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
         st.subheader("Total Price")
         st.write(format_price(total_price, currency))
 
         st.subheader("Additional Information")
-        st.write(f"Exchange rate: 1 EUR = {exchange_rates[currency]} {currency}")
+        st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
         st.write(f"AuM Multiplier: {aum_brackets[aum]}x")
         st.write(f"Module Count Discount: {module_discounts.get(len(selected_modules), module_discounts[7] if len(selected_modules) > 7 else 0):.0%}")
 
