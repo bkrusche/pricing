@@ -1,16 +1,16 @@
 Webapp (reports only),Webapp (download),API,Datafeed,Price Factor
-True,False,False,False,-0.15
-False,True,False,False,0
-False,False,True,False,0
-False,False,False,True,+0.15
-True,True,False,False,+0
-True,False,True,False,+0.20
-True,False,False,True,+0.35
-True,True,True,False,+0.20
-True,True,False,True,+0.35
-True,False,True,True,+0.40
-True,True,True,True,+0.40
-False,True,True,False,+0.20
-False, False,True,False,+0.35
-False,False,True,True,+0.35
-False,True,True,True,+40%
+TRUE,FALSE,FALSE,FALSE,-0.15
+FALSE,TRUE,FALSE,FALSE,0
+FALSE,FALSE,TRUE,FALSE,0
+FALSE,FALSE,FALSE,TRUE,+0.15
+TRUE,TRUE,FALSE,FALSE,+0
+TRUE,FALSE,TRUE,FALSE,+0.20
+TRUE,FALSE,FALSE,TRUE,+0.35
+TRUE,TRUE,TRUE,FALSE,+0.20
+TRUE,TRUE,FALSE,TRUE,+0.35
+TRUE,FALSE,TRUE,TRUE,+0.40
+TRUE,TRUE,TRUE,TRUE,+0.40
+FALSE,TRUE,TRUE,FALSE,+0.20
+FALSE, FALSE,TRUE,FALSE,+0.35
+FALSE,FALSE,TRUE,TRUE,+0.35
+FALSE,TRUE,TRUE,TRUE,+40%
