@@ -44,9 +44,7 @@ def load_module_data():
 
 modules_df = load_module_data()
 
-# Ensure column names are stripped of extra spaces
-modules_df.columns = modules_df.columns.str.strip()
-
+# Function to calculate discounts
 def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
     module_discount = module_discounts.get(module_count, module_discounts[7] if module_count > 7 else 0)
@@ -54,6 +52,7 @@ def calculate_discount(module_count, contract_length):
     total_discount = 1 - (1 - module_discount) * (1 - contract_discount)
     return total_discount
 
+# Function to format price based on currency
 def format_price(price, currency):
     if currency == 'EUR':
         return f"€{price:,.2f}"
@@ -62,10 +61,12 @@ def format_price(price, currency):
     elif currency == 'GBP':
         return f"£{price:,.2f}"
 
+# Main application logic
 def main():
     try:
         st.title("Product Price Configurator")
 
+        # User inputs
         col1, col2, col3 = st.columns(3)
         with col1:
             currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
@@ -84,7 +85,7 @@ def main():
         st.subheader("Select Product Modules")
         selected_modules = []
         
-        # Define the custom order for topics
+        # Custom sorting of topics
         custom_order = [
             "Regulatory",
             "Climate",
@@ -102,46 +103,46 @@ def main():
 
         # Group modules by Topic and display them
         grouped_modules = modules_df.groupby('Topic')
-        
         for topic, group in grouped_modules:
             with st.expander(f"**{topic}**", expanded=True):
                 for _, row in group.iterrows():
                     if st.checkbox(f"{row['Product module']}", key=row['Product module']):
                         selected_modules.append(row['Product module'])
- 
+
+        # Process selected modules
         if selected_modules:
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-    
-            # Ensure 'Price' is numeric before any calculations
+
+            # Ensure 'Price' is numeric
             selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
 
-            # Calculate list price with AuM bracket and exchange rates
+            # Calculate list price
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
 
-            # Apply access method multiplier to List Price
+            # Apply access method multiplier
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
             selected_df['List Price'] *= (1 + access_multiplier)
 
-            # Calculate discount based on adjusted List Price
+            # Calculate discounts
             discount = calculate_discount(len(selected_modules), contract_length)
             selected_df['Discount'] = f"{discount:.2%}"
             selected_df['Offer Price'] = selected_df['List Price'] * (1 - discount)
 
-            # Format prices for display
+            # Format prices
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
-            # Highlight unavailable module-access method combinations
+            # Check incompatible module-access method combinations
             incompatible_combinations = []
             for module in selected_modules:
                 module_row = modules_df[modules_df['Product module'] == module].iloc[0]
                 for method, selected in selected_access_methods.items():
-                    # Check availability of each access method for the module
-                    if selected and not bool(module_row.get(method, False)):
+                    if selected and module_row[method] == "FALSE":  # String comparison
                         incompatible_combinations.append((module, method))
 
+            # Display incompatible combinations
             if incompatible_combinations:
                 st.markdown("### **Incompatible Access Methods**")
                 for module, method in incompatible_combinations:
@@ -150,7 +151,7 @@ def main():
                         unsafe_allow_html=True,
                     )
 
-            # Calculate total price
+            # Total price
             total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
             st.subheader("Total Price")
             st.write(format_price(total_price, currency))
@@ -162,5 +163,6 @@ def main():
         st.error(f"An error occurred: {str(e)}")
         st.error(traceback.format_exc())
 
+# Run the application
 if __name__ == "__main__":
     main()
