@@ -110,10 +110,13 @@ def main():
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
     
-            # Calculate List Price
+           # Ensure 'Price' is numeric before any calculations
+            selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')  # Convert 'Price' to numeric, invalid parsing will result in NaN
+
+            # Now perform the multiplication
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-    
-            # Apply access method multiplier to List Price
+         
+        # Apply access method multiplier to List Price
             access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
             selected_df['List Price'] *= (1 + access_multiplier)  # Apply multiplier here
 
