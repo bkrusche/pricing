@@ -17,5 +17,6 @@ Module Discount,4,0.20
 Module Discount,5,0.25
 Module Discount,6,0.30
 Module Discount,7,0.35
-Exchange Rate,USD to EUR,1/1.09
-Exchange Rate,USD to GBP,0.86/1.09
+Exchange Rate,EUR,1/1.09
+Exchange Rate,GBP,0.86/1.09
+Exchange Rate,USD,1/1
