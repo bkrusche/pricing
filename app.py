@@ -113,45 +113,50 @@ def main():
                         selected_modules.append(row['Product module'])
 
         # Process selected modules
-        if selected_modules:
-            st.subheader("Selected Modules")
-            selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-        
-            # Ensure 'Price' is numeric
-            selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
-        
-            # Calculate list price
-            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
-        
-            # Apply access method multiplier
-            access_multiplier = max([access_methods[method] for method in selected_access_methods if selected_access_methods[method]])
-            selected_df['List Price'] *= (1 + access_multiplier)
-        
-            # Calculate discounts
-            bundle_discount = calculate_discount(len(selected_modules), contract_length)  # Use existing function for module discount
-            multi_year_discount = sum(contract_discounts[contract_length]) / 100  # Calculate multi-year discount based on contract length
-        
-            # Add new discount columns
-            selected_df['Bundle Discount'] = f"{bundle_discount:.2%}"
-            selected_df['Multi-Year Discount'] = f"{multi_year_discount:.2%}"
-            
-            # Add AE Discount column with dropdown selection for up to 15%
-            ae_discount_options = [0, 5, 10, 15]  # Define options for AE Discount
-            col_ae_discount = st.columns(4)[0]  # Create a single-column layout for the dropdown
-            ae_discount_percentage = col_ae_discount.selectbox("Select AE Discount (%)", ae_discount_options) / 100  # Dropdown for AE Discount
-            selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
-
-        
-            # Calculate final price considering all discounts
-            selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
-        
-            # Format prices for display
-            selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
-            selected_df['Final Price'] = selected_df['Final Price'].apply(lambda x: format_price(x, currency))
-        
-            # Display results table with new columns
-            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Bundle Discount', 'Multi-Year Discount', 'AE Discount', 'Final Price']])
-        
+    # Process selected modules
+    if selected_modules:
+        st.subheader("Selected Modules")
+        selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
+    
+        # Ensure 'Price' is numeric
+        selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
+    
+        # Calculate list price
+        selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
+    
+        # Initialize access method multiplier
+        access_multiplier = 0  
+        for method in selected_access_methods:
+            if selected_access_methods[method]:  # If the method is selected
+                access_multiplier += access_method_factors.get(method, 0)  # Add the specific multiplier for that method
+    
+        # Apply total access multiplier
+        selected_df['List Price'] *= (1 + access_multiplier)
+    
+        # Calculate discounts
+        bundle_discount = calculate_discount(len(selected_modules), contract_length)  # Use existing function for bundle discount
+        multi_year_discount = sum(contract_discounts[contract_length]) / 100  # Calculate multi-year discount based on contract length
+    
+        # Add new discount columns
+        selected_df['Bundle Discount'] = f"{bundle_discount:.2%}"
+        selected_df['Multi-Year Discount'] = f"{multi_year_discount:.2%}"
+    
+        # Add AE Discount column with dropdown selection for up to 15%
+        ae_discount_options = [0, 5, 10, 15]  # Define options for AE Discount
+        col_ae_discount = st.columns(3)[0]  # Create a column that takes up one-third of the page
+        ae_discount_percentage = col_ae_discount.selectbox("Select AE Discount (%)", ae_discount_options) / 100  # Dropdown for AE Discount
+        selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
+    
+        # Calculate final price considering all discounts
+        selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
+    
+        # Format prices for display
+        selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
+        selected_df['Final Price'] = selected_df['Final Price'].apply(lambda x: format_price(x, currency))
+    
+        # Display results table with new columns
+        st.table(selected_df[['Topic', 'Product module', 'List Price', 'Bundle Discount', 'Multi-Year Discount', 'AE Discount', 'Final Price']])
+    
 
 
             # Check incompatible module-access method combinations
