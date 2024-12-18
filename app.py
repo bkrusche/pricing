@@ -28,36 +28,19 @@ try:
         "2 year": [10, 5, 0],
         "3 year": [15, 10, 5]
     }
-    
-    # Load exchange rates safely without eval
-    exchange_rates = {}
-    for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples():
-        key = row[1]  # Currency code (e.g., EUR)
-        value_str = row[2].strip()  # Get the string representation of the rate
-        
-        # Convert the string to a float value safely
-        if '/' in value_str:
-            numerator, denominator = map(float, value_str.split('/'))
-            value = numerator / denominator
-        else:
-            value = float(value_str)
-        
-        exchange_rates[key] = value
-
+    exchange_rates = {row[2]: eval(row[3]) for row in config_df[config_df['Type'] == 'Exchange Rate'].itertuples()}
 except Exception as e:
     st.error(f"Error processing configuration data: {str(e)}")
     st.stop()  # Stop execution if there's an error
 
-# Load module data from CSV file
+# Load module data from CSV file (keep this part unchanged)
 @st.cache_data
 def load_module_data():
     try:
-        modules_df = pd.read_csv('modules.csv')
-        modules_df['Price'] = modules_df['Price'].astype(float)  # Ensure Price is treated as a float for calculations.
-        return modules_df
+        return pd.read_csv('modules.csv')
     except Exception as e:
         st.error(f"Error loading modules.csv: {str(e)}")
-        return pd.DataFrame(columns=['Topic', 'Product module', 'Price', 'Standard', 'Webapp', 'API', 'Datafeed'])
+        return pd.DataFrame(columns=['Topic', 'Product module', 'Price'])
 
 modules_df = load_module_data()
 
@@ -127,8 +110,6 @@ def main():
             st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
     
-            notes_to_display = []  # List to collect notes about unavailable access methods
-
             # Calculate List Price
             selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
     
@@ -145,29 +126,13 @@ def main():
             # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
             selected_df['Offer Price'] = selected_df['Offer Price'].apply(lambda x: format_price(x, currency))
-
-            # Check for unavailable access methods and collect notes
-            for _, row in selected_df.iterrows():
-                product_module = row['Product module']
-                if not row['Standard'] and selected_access_methods.get('Standard', False):
-                    notes_to_display.append(f"{product_module} not available through Standard")
-                if not row['Webapp'] and selected_access_methods.get('Webapp', False):
-                    notes_to_display.append(f"{product_module} not available through Webapp")
-                if not row['API'] and selected_access_methods.get('API', False):
-                    notes_to_display.append(f"{product_module} not available through API")
-                if not row['Datafeed'] and selected_access_methods.get('Datafeed', False):
-                    notes_to_display.append(f"{product_module} not available through Datafeed")
-
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Discount', 'Offer Price']])
 
-            total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-            st.subheader("Total Price")
-            st.write(format_price(total_price, currency))
 
-            # Display notes about unavailable access methods
-            if notes_to_display:
-                for note in notes_to_display:
-                    st.warning(note)
+    
+        total_price = selected_df['Offer Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
+        st.subheader("Total Price")
+        st.write(format_price(total_price, currency))
 
         st.subheader("Additional Information")
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
