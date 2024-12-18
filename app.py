@@ -172,4 +172,8 @@ def main():
         st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
         
     except Exception as e:
-        st.error(f"An erro
+        st.error(f"An error occurred: {str(e)}")  # Ensure this line is properly formatted
+        st.error(traceback.format_exc())
+
+if __name__ == "__main__":
+    main()
