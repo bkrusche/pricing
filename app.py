@@ -34,10 +34,35 @@ def load_module_data():
 modules_df = load_module_data()
 
 def calculate_price(base_price, currency, aum, contract_length, selected_modules, access_methods):
-    # ... (keep the existing calculate_price function)
+    aum_multiplier = aum_brackets[aum]
+    years = int(contract_length.split()[0])
+    
+    total_price = sum([base_price * (1 - contract_discounts[contract_length][year]/100) for year in range(years)])
+    
+    for module in selected_modules:
+        module_price = modules_df[modules_df['Product module'] == module]['Price'].values[0]
+        total_price += module_price * aum_multiplier * years
+    
+    # Apply access method multiplier
+    access_multiplier = max([access_methods[method] for method in access_methods if access_methods[method]])
+    total_price *= (1 + access_multiplier)
+    
+    # Apply module count discount
+    module_count = len(selected_modules)
+    if module_count in module_discounts:
+        total_price *= (1 - module_discounts[module_count])
+    elif module_count > 7:
+        total_price *= (1 - module_discounts[7])
+    
+    return total_price * exchange_rates[currency]
 
 def format_price(price, currency):
-    # ... (keep the existing format_price function)
+    if currency == 'EUR':
+        return f"€{price:,.2f}"
+    elif currency == 'USD':
+        return f"${price:,.2f}"
+    elif currency == 'GBP':
+        return f"£{price:,.2f}"
 
 def main():
     try:
