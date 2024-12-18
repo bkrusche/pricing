@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 
-# Set page config at the very beginning
-st.set_page_config(page_title="Product Price Configurator", layout="wide")
+# Initialize session state if not already done
+if 'init' not in st.session_state:
+    st.session_state.init = True
+    st.set_page_config(page_title="Product Price Configurator", layout="wide")
 
 # Load exchange rates and AuM brackets
 exchange_rates = {
@@ -31,4 +33,26 @@ contract_discounts = {
 # Load module data from CSV
 @st.cache_data
 def load_module_data():
-    return pd.read_csv('modules.
+    return pd.read_csv('modules.csv')
+
+modules_df = load_module_data()
+
+def calculate_price(base_price, currency, aum, contract_length, selected_modules):
+    aum_multiplier = aum_brackets[aum]
+    years = int(contract_length.split()[0])
+    
+    total_price = sum([base_price * (1 - contract_discounts[contract_length][year]/100) for year in range(years)])
+    
+    for module in selected_modules:
+        module_price = modules_df[modules_df['Product module'] == module]['Price'].values[0]
+        total_price += module_price * aum_multiplier * years
+    
+    return total_price * exchange_rates[currency]
+
+def main():
+    st.title("Product Price Configurator")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
+    with col2:
