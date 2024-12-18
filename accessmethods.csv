@@ -1,4 +1,4 @@
-Access Method Combination,"Webapp (reports only)","Webapp (download)","API","Datafeed",Price Factor
+Webapp (reports only),Webapp (download),API,Datafeed,Price Factor
 True,False,False,False,-0.15
 False,True,False,False,0
 False,False,True,False,0
