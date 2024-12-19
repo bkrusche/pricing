@@ -7,6 +7,7 @@ if 'init' not in st.session_state:
     st.session_state.init = True
     st.set_page_config(page_title="Product Price Configurator", layout="wide")
 
+
 # Add function to clear all selections
 def clear_all_selections():
     # Clear access method selections
