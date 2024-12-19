@@ -243,7 +243,7 @@ def main():
                                     unsafe_allow_html=True
                                 )
                 
-                st.subheader("Selected Modules")
+            st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
         
             # Ensure 'Price' is numeric
