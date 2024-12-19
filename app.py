@@ -95,114 +95,110 @@ def main():
                 padding: 10px;
                 border-bottom: 1px solid #ddd;
             }
-            .content {
-                margin-top: 120px;
+            .main-content {
+                margin-top: 200px;
             }
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
         </style>
         """, unsafe_allow_html=True)
 
-        # Create a container for the fixed header
-        header = st.container()
+        # Fixed header
+        st.markdown('<div class="fixed-header">', unsafe_allow_html=True)
+        st.title("Product Price Configurator")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
+        with col2:
+            aum = st.selectbox("Select AuM Bracket", list(aum_brackets.keys()))
+        with col3:
+            contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        # Create a container for the scrollable content
-        content = st.container()
+        # Main content
+        st.markdown('<div class="main-content">', unsafe_allow_html=True)
+        
+        st.subheader("Access Methods")
+        cols = st.columns(len(access_methods))
+        selected_access_methods = {}
+        for i, method in enumerate(access_methods.keys()):
+            with cols[i]:
+                selected_access_methods[method] = st.checkbox(f"{method}")
 
-        with header:
-            st.markdown('<div class="fixed-header">', unsafe_allow_html=True)
-            st.title("Product Price Configurator")
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
-            with col2:
-                aum = st.selectbox("Select AuM Bracket", list(aum_brackets.keys()))
-            with col3:
-                contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.subheader("Select Product Modules")
+        selected_modules = []
 
-        with content:
-            st.markdown('<div class="content">', unsafe_allow_html=True)
-            
-            st.subheader("Access Methods")
-            cols = st.columns(len(access_methods))
-            selected_access_methods = {}
-            for i, method in enumerate(access_methods.keys()):
-                with cols[i]:
-                    selected_access_methods[method] = st.checkbox(f"{method}")
+        custom_order = [
+            "Regulatory", "Climate", "Risk", "Impact", "Nature & Biodiversity",
+            "Labels", "Raw data", "Benchmarks"
+        ]
+        modules_df['Topic'] = pd.Categorical(modules_df['Topic'], categories=custom_order, ordered=True)
+        modules_df.sort_values('Topic', inplace=True)
 
-            st.subheader("Select Product Modules")
-            selected_modules = []
+        grouped_modules = modules_df.groupby('Topic')
+        for topic, group in grouped_modules:
+            with st.expander(f"**{topic}**", expanded=True):
+                for _, row in group.iterrows():
+                    if st.checkbox(f"{row['Product module']}", key=row['Product module']):
+                        selected_modules.append(row['Product module'])
 
-            custom_order = [
-                "Regulatory", "Climate", "Risk", "Impact", "Nature & Biodiversity",
-                "Labels", "Raw data", "Benchmarks"
-            ]
-            modules_df['Topic'] = pd.Categorical(modules_df['Topic'], categories=custom_order, ordered=True)
-            modules_df.sort_values('Topic', inplace=True)
+        if selected_modules:
+            st.subheader("Selected Modules")
+            selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
+            selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
+            selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
 
-            grouped_modules = modules_df.groupby('Topic')
-            for topic, group in grouped_modules:
-                with st.expander(f"**{topic}**", expanded=True):
-                    for _, row in group.iterrows():
-                        if st.checkbox(f"{row['Product module']}", key=row['Product module']):
-                            selected_modules.append(row['Product module'])
+            access_method_keys = (
+                bool(selected_access_methods.get('Webapp (reports only)', False)),
+                bool(selected_access_methods.get('Webapp (download)', False)),
+                bool(selected_access_methods.get('API', False)),
+                bool(selected_access_methods.get('Datafeed', False))
+            )
+            access_multiplier = access_method_factors.get(access_method_keys, 0)
+            selected_df['List Price'] *= (1 + access_multiplier)
 
-            if selected_modules:
-                st.subheader("Selected Modules")
-                selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-                selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
-                selected_df['List Price'] = selected_df['Price'] * aum_brackets[aum] * exchange_rates[currency]
+            bundle_discount = calculate_discount(len(selected_modules), contract_length)
+            multi_year_discount = sum(contract_discounts[contract_length]) / 100
 
-                access_method_keys = (
-                    bool(selected_access_methods.get('Webapp (reports only)', False)),
-                    bool(selected_access_methods.get('Webapp (download)', False)),
-                    bool(selected_access_methods.get('API', False)),
-                    bool(selected_access_methods.get('Datafeed', False))
-                )
-                access_multiplier = access_method_factors.get(access_method_keys, 0)
-                selected_df['List Price'] *= (1 + access_multiplier)
+            selected_df['Bundle Discount'] = f"{bundle_discount:.2%}"
+            selected_df['Multi-Year Discount'] = f"{multi_year_discount:.2%}"
 
-                bundle_discount = calculate_discount(len(selected_modules), contract_length)
-                multi_year_discount = sum(contract_discounts[contract_length]) / 100
+            ae_discount_options = [0, 5, 10, 15]
+            col_ae_discount = st.columns(3)[0]
+            ae_discount_percentage = col_ae_discount.selectbox("Select AE Discount (%)", ae_discount_options) / 100
+            selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
 
-                selected_df['Bundle Discount'] = f"{bundle_discount:.2%}"
-                selected_df['Multi-Year Discount'] = f"{multi_year_discount:.2%}"
+            selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
 
-                ae_discount_options = [0, 5, 10, 15]
-                col_ae_discount = st.columns(3)[0]
-                ae_discount_percentage = col_ae_discount.selectbox("Select AE Discount (%)", ae_discount_options) / 100
-                selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
+            selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
+            selected_df['Final Price'] = selected_df['Final Price'].apply(lambda x: format_price(x, currency))
 
-                selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
+            st.table(selected_df[['Topic', 'Product module', 'List Price', 'Bundle Discount', 'Multi-Year Discount', 'AE Discount', 'Final Price']])
 
-                selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
-                selected_df['Final Price'] = selected_df['Final Price'].apply(lambda x: format_price(x, currency))
+            incompatible_combinations = []
+            for module in selected_modules:
+                module_row = modules_df[modules_df['Product module'] == module].iloc[0]
+                for method, selected in selected_access_methods.items():
+                    if selected == True:
+                        if selected != module_row[method]:
+                            incompatible_combinations.append((module, method))
 
-                st.table(selected_df[['Topic', 'Product module', 'List Price', 'Bundle Discount', 'Multi-Year Discount', 'AE Discount', 'Final Price']])
+            if incompatible_combinations:
+                st.markdown("### **Incompatible Access Methods**")
+                for module, method in incompatible_combinations:
+                    st.markdown(
+                        f'<p style="color: red;">⚠️ {module} is not available with {method}</p>',
+                        unsafe_allow_html=True,
+                    )
 
-                incompatible_combinations = []
-                for module in selected_modules:
-                    module_row = modules_df[modules_df['Product module'] == module].iloc[0]
-                    for method, selected in selected_access_methods.items():
-                        if selected == True:
-                            if selected != module_row[method]:
-                                incompatible_combinations.append((module, method))
+            total_price = selected_df['Final Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
+            st.subheader("Total Price")
+            st.write(format_price(total_price, currency))
 
-                if incompatible_combinations:
-                    st.markdown("### **Incompatible Access Methods**")
-                    for module, method in incompatible_combinations:
-                        st.markdown(
-                            f'<p style="color: red;">⚠️ {module} is not available with {method}</p>',
-                            unsafe_allow_html=True,
-                        )
+            st.subheader("Additional Information")
+            st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
 
-                total_price = selected_df['Final Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
-                st.subheader("Total Price")
-                st.write(format_price(total_price, currency))
-
-                st.subheader("Additional Information")
-                st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
-
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
