@@ -46,14 +46,13 @@ def load_access_methods():
 #load licences information 
 @st.cache_data
 
-def load_licenses():
-    try:
-        df = pd.read_csv('licenses.csv')
-        license_cost = df.iloc[1]['# licenses'] if len(df) > 1 else 5000  # Default to 5000 if second row doesn't exist
-        return df, license_cost
-    except Exception as e:
-        st.error(f"Error loading licenses.csv: {str(e)}")
-        return pd.DataFrame(columns=['Ticket size', '# licenses']), 5000
+def get_included_licenses(total_price, licenses_df):
+    if licenses_df.empty:
+        return 1
+    for _, row in licenses_df.iterrows():
+        if total_price <= row['Ticket size']:
+            return row['# licenses']
+    return licenses_df.iloc[-1]['# licenses'] if not licenses_df.empty else 1
 
 licenses_df, license_cost = load_licenses()
 
@@ -349,8 +348,7 @@ def main():
         total_price = selected_df['Final Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
 
         # Determine included licenses
-        included_licenses = get_included_licenses(total_price)
-
+        included_licenses = get_included_licenses(total_price_before_extra, licenses_df)
 
 
         # Display results in three columns
