@@ -307,12 +307,29 @@ def main():
             ae_discount_percentage = col_ae_discount.selectbox("Select AE Discount (%)", ae_discount_options) / 100  # Dropdown for AE Discount
             selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
         
-            # Calculate final price considering all discounts
+
+            # Add AE Discount column with dropdown selection for up to 15% and license selection
+            ae_discount_options = [0, 5, 10, 15]  # Define options for AE Discount
+            col_ae_discount, col_licenses = st.columns(2)  # Create two columns
+            
+            with col_ae_discount:
+                ae_discount_percentage = st.selectbox("Select AE Discount (%)", ae_discount_options) / 100  # Dropdown for AE Discount
+                selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
+            
+            with col_licenses:
+                extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
+                license_cost = 1000  # Set the cost per additional license (adjust as needed)
+                total_licenses = included_licenses + extra_licenses
+                extra_license_cost = extra_licenses * license_cost
+            
+            # Calculate final price considering all discounts and extra license cost
             selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
-        
+            total_price = selected_df['Final Price'].sum() + extra_license_cost
+            
             # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
             selected_df['Final Price'] = selected_df['Final Price'].apply(lambda x: format_price(x, currency))
+
         
             # Display results table with new columns
             st.table(selected_df[['Topic', 'Product module', 'List Price', 'Bundle Discount', 'Multi-Year Discount', 'AE Discount', 'Final Price']])
@@ -345,12 +362,6 @@ def main():
         # Determine included licenses
         included_licenses = get_included_licenses(total_price)
 
-        # Allow user to add extra licenses
-        st.subheader("Licenses")
-        extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
-        license_cost = 1000  # Set the cost per additional license (adjust as needed)
-        total_licenses = included_licenses + extra_licenses
-        extra_license_cost = extra_licenses * license_cost
 
         # Update total price with extra license cost
         final_total_price = total_price + extra_license_cost
