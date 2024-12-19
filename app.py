@@ -315,14 +315,14 @@ def main():
             with col_extra_licenses:
                 st.subheader("Licenses")
                 extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
-                license_cost = 1000  # Set the cost per additional license (adjust as needed)
+                license_cost = 5000  # Set the cost per additional license (adjust as needed)
                 total_licenses = included_licenses + extra_licenses
                 extra_license_cost = extra_licenses * license_cost
 
         
-            # Calculate final price considering all discounts and extra license cost
+            # Calculate final price considering all discounts 
             selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
-            total_price = selected_df['Final Price'].sum() + extra_license_cost 
+            total_price = selected_df['Final Price'].sum()
         
             # Format prices for display
             selected_df['List Price'] = selected_df['List Price'].apply(lambda x: format_price(x, currency))
@@ -359,6 +359,9 @@ def main():
         # Determine included licenses
         included_licenses = get_included_licenses(total_price)
 
+         # Calculate final price considering all discounts 
+            selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
+            total_price = selected_df['Final Price'].sum() + extra_license_cost 
 
         # Display results in three columns
         col1, col2, col3 = st.columns(3)
