@@ -69,8 +69,8 @@ def get_included_licenses(total_price):
     else:
         return 1  # Default to 1 license if DataFrame is empty
 
-#get the price for one licencse
-def get_license_price(total_price)
+#get the price for one license
+def get_license_price(total_price):
     if licenses_df.empty:
         st.warning("Licenses data is empty or not loaded properly. Using default value of 1 license.")
         return 1
