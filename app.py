@@ -360,8 +360,8 @@ def main():
         included_licenses = get_included_licenses(total_price)
 
          # Calculate final price considering all discounts 
-            selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
-            total_price = selected_df['Final Price'].sum() + extra_license_cost 
+        selected_df['Final Price'] = selected_df['List Price'].astype(float) * (1 - bundle_discount) * (1 - multi_year_discount) * (1 - ae_discount_percentage)
+        total_price = selected_df['Final Price'].sum() + extra_license_cost 
 
         # Display results in three columns
         col1, col2, col3 = st.columns(3)
