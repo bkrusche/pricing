@@ -383,7 +383,7 @@ def main():
                 st.write("to be added")  # Empty for now, as requested
             with col3:
                 st.subheader("Total Price")
-                st.markdown(f"<div style='text-align: right;'><p style='font-size: 24px;'><strong>{format_price(total_price, currency)}</strong></p></div>", unsafe_allow_html=True)
+                st.markdown(f"**<p style='font-size: 24px;'>{format_price(total_price, currency)}</p>**", unsafe_allow_html=True)
 
             st.subheader("Additional Information")
             st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
