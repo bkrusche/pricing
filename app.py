@@ -417,6 +417,9 @@ def main():
             aum_column = next(col for col in variable_costs_df.columns if aum in col)
             selected_df['Variable Cost'] = selected_df['Product module'].map(variable_costs_df.set_index('Product module')[aum_column]).fillna(0) 
 
+            # Format Variable Cost as currency
+            selected_df['Variable Cost'] = selected_df['Variable Cost'].apply(lambda x: format_price(x, currency))
+
              # Update the table display to include Variable Cost
             st.table(selected_df[['Topic', 'Product module', 'Variable Cost']])
         
