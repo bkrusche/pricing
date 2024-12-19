@@ -418,6 +418,7 @@ def main():
             selected_df['Variable Cost'] = selected_df['Product module'].map(
             variable_costs_df.set_index('Product module')[aum_column]
             ).fillna(0)
+            st.write(f"AuM column: {aum_column}") #debug
 
              # Update the table display to include Variable Cost
             st.table(selected_df[['Topic', 'Product module', 'Variable Cost']])
