@@ -7,8 +7,6 @@ Regulatory (upsells only),EU Tax. Article 8 - standalone reports,20000,True,True
 Regulatory,SFDR Sustainable investment,22000,True,True,True,True
 Regulatory,Article 29 - annexes,45000,False,False,False,True
 Regulatory,EET,33000,True,True,False,True
-Regulatory,Pillar 3 - complete solution,60000,True,True,False,True
-Regulatory,Pillar 3 - Templates 1-8,50000,True,True,False,True
 Regulatory,MiFID II,38000,True,True,True,True
 Regulatory,Swiss Climate Scores,44000,False,False,True,True
 Climate,Carbon Footprint,30800.,True,True,True,True
