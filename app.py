@@ -17,6 +17,7 @@ if 'selected_modules' not in st.session_state:
 def clear_selections():
     st.session_state.selected_access_methods = {method: False for method in access_methods.keys()}
     st.session_state.selected_modules = []
+    st.experimental_rerun()  # Force Streamlit to rerender the UI
 
 
 # Load configuration from CSV file
@@ -101,6 +102,7 @@ def main():
         clear_button = st.button("Clear All Selections", key="clear_button")
         if clear_button:
             clear_selections()
+            
             
         # User inputs
         col1, col2, col3 = st.columns(3)
