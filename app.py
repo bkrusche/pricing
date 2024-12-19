@@ -244,7 +244,7 @@ def main():
                                 )
                 
         st.subheader("Selected Modules")
-            selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
+        selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
         
             # Ensure 'Price' is numeric
             selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
