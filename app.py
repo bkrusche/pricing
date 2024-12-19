@@ -380,11 +380,11 @@ def main():
                 final_total_price = total_price + extra_license_cost
             with col2:
                 st.subheader("Included Service Level")
-                st.write("N/A")  # Empty for now, as requested
+                st.write("to be added")  # Empty for now, as requested
             with col3:
                 st.subheader("Total Price")
-                st.write(format_price(final_total_price, currency))
-    
+                st.markdown(f"**<p style='font-size: 24px;'>{format_price(total_price, currency)}</p>**", unsafe_allow_html=True)    
+
             st.subheader("Additional Information")
             st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
             st.write(f"Cost per additional license: {format_price(license_cost, currency)}")
