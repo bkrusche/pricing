@@ -55,10 +55,19 @@ def load_licenses():
 licenses_df = load_licenses()
 
 def get_included_licenses(total_price):
+    if licenses_df.empty:
+        st.warning("Licenses data is empty or not loaded properly. Using default value of 1 license.")
+        return 1
+    
     for _, row in licenses_df.iterrows():
         if total_price <= row['Ticket size']:
             return row['# licenses']
-    return licenses_df.iloc[-1]['# licenses']  # Return the last value if price exceeds all tiers
+    
+    # If we've gone through all rows without finding a match, return the last value
+    if not licenses_df.empty:
+        return licenses_df.iloc[-1]['# licenses']
+    else:
+        return 1  # Default to 1 license if DataFrame is empty
 
 
 @st.cache_data
