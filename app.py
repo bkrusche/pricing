@@ -141,7 +141,7 @@ def main():
         # Group modules by Topic and display them
         grouped_modules = modules_df.groupby('Topic')
         for topic, group in grouped_modules:
-            with st.expander(f"**{topic}**", expanded=True):
+            with st.expander(f"**{topic}**", expanded=False):
                 for _, row in group.iterrows():
                     if st.checkbox(f"{row['Product module']}", key=row['Product module']):
                         selected_modules.append(row['Product module'])
