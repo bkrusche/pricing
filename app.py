@@ -321,7 +321,7 @@ def main():
             selected_df['List Price'] *= (1 + access_multiplier)
         
             # Calculate discounts
-            bundle_discount = calculate_discount(len(selected_modules), contract_length)  # Use existing function for bundle discount
+            bundle_discount = calculate_discount(len(selected_modules), 1)  # Use existing function for bundle discount
             multi_year_discount = sum(contract_discounts[contract_length]) / 100  # Calculate multi-year discount based on contract length
         
             # Add new discount columns
