@@ -57,8 +57,6 @@ def get_included_licenses(total_price, licenses_df):
 licenses_df, license_cost = load_licenses()
 
 
-licenses_df = load_licenses()
-
 def get_included_licenses(total_price):
     if licenses_df.empty:
         st.warning("Licenses data is empty or not loaded properly. Using default value of 1 license.")
