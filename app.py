@@ -45,17 +45,14 @@ def load_access_methods():
 
 #load licences information 
 @st.cache_data
+def load_licenses():
+    try:
+        return pd.read_csv('licenses.csv')
+    except Exception as e:
+        st.error(f"Error loading licenses.csv: {str(e)}")
+        return pd.DataFrame(columns=['Ticket size', '# licenses'])
 
-def get_included_licenses(total_price, licenses_df):
-    if licenses_df.empty:
-        return 1
-    for _, row in licenses_df.iterrows():
-        if total_price <= row['Ticket size']:
-            return row['# licenses']
-    return licenses_df.iloc[-1]['# licenses'] if not licenses_df.empty else 1
-
-licenses_df, license_cost = load_licenses()
-
+licenses_df = load_licenses()
 
 def get_included_licenses(total_price):
     if licenses_df.empty:
@@ -72,6 +69,22 @@ def get_included_licenses(total_price):
     else:
         return 1  # Default to 1 license if DataFrame is empty
 
+#get the price for one licencse
+def get_license_price(total_price)
+    if licenses_df.empty:
+        st.warning("Licenses data is empty or not loaded properly. Using default value of 1 license.")
+        return 1
+    
+    for _, row in licenses_df.iterrows():
+        if 5000 <= row['Ticket size']:
+            return row['Ticket size']
+    
+    # If we've gone through all rows without finding a match, return the last value
+    if not licenses_df.empty:
+        return licenses_df.iloc[-1]['# licenses']
+    else:
+        return 1  # Default to 1 license if DataFrame is empty
+        
 
 @st.cache_data
 def load_label_requirements():
@@ -346,7 +359,8 @@ def main():
         total_price = selected_df['Final Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
 
         # Determine included licenses
-        included_licenses = get_included_licenses(total_price_before_extra, licenses_df)
+        included_licenses = get_included_licenses(total_price)
+
 
 
         # Display results in three columns
@@ -356,7 +370,7 @@ def main():
             # Allow user to add extra licenses
             st.subheader("Licenses")
             extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
-            # license_cost is  loaded from licenses.csv
+            license_cost = get_license_price(total_price)  # Set the cost per additional license (adjust as needed)
             total_licenses = included_licenses + extra_licenses
             extra_license_cost = extra_licenses * license_cost
 
