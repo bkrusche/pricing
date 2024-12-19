@@ -238,14 +238,26 @@ def main():
         modules_df['Topic'] = pd.Categorical(modules_df['Topic'], categories=custom_order, ordered=True)
         modules_df.sort_values('Topic', inplace=True)
 
-        # Group modules by Topic and display them
+        # Create three columns
+        col1, col2, col3 = st.columns(3)
+        
+        # Group modules by Topic
         grouped_modules = modules_df.groupby('Topic')
-        for topic, group in grouped_modules:
-            with st.expander(f"**{topic}**", expanded=False):
-                for _, row in group.iterrows():
-                    if st.checkbox(f"{row['Product module']}", key=row['Product module']):
-                        selected_modules.append(row['Product module'])
+        
+        # Distribute topics across columns
+        topics = list(grouped_modules.groups.keys())
+        topics_per_column = -(-len(topics) // 3)  # Ceiling division to distribute evenly
+        
+        for i, (column, start_idx) in enumerate(zip([col1, col2, col3], range(0, len(topics), topics_per_column))):
+            with column:
+                for topic in topics[start_idx:start_idx + topics_per_column]:
+                    group = grouped_modules.get_group(topic)
+                    with st.expander(f"**{topic}**", expanded=False):
+                        for _, row in group.iterrows():
+                            if st.checkbox(f"{row['Product module']}", key=row['Product module']):
+                                selected_modules.append(row['Product module'])
 
+        
         # Process selected modules
         if selected_modules:
             # Load labels data
