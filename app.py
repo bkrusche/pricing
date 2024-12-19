@@ -17,13 +17,17 @@ def clear_all_selections():
     for module in modules_df['Product module']:
         st.session_state[module] = False
 
-# Add load variable cost 
 def load_variable_costs():
     try:
-        return pd.read_csv('variablecost.csv')
+        df = pd.read_csv('variablecost.csv')
+        # Convert columns 7-15 to float
+        columns_to_convert = df.columns[6:13]  # Columns 7-12 (0-indexed)
+        df[columns_to_convert] = df[columns_to_convert].astype(float)
+        return df
     except Exception as e:
         st.error(f"Error loading variablecost.csv: {str(e)}")
         return pd.DataFrame()
+
 
 variable_costs_df = load_variable_costs()
 
