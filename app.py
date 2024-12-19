@@ -17,8 +17,6 @@ if 'selected_modules' not in st.session_state:
 def clear_selections():
     st.session_state.selected_access_methods = {method: False for method in access_methods.keys()}
     st.session_state.selected_modules = []
-    st.experimental_rerun()  # Force Streamlit to rerender the UI
-
 
 # Load configuration from CSV file
 @st.cache_data
