@@ -256,7 +256,6 @@ def main():
                         for _, row in group.iterrows():
                             if st.checkbox(f"{row['Product module']}", key=row['Product module']):
                                 selected_modules.append(row['Product module'])
-
         
         # Process selected modules
         if selected_modules:
