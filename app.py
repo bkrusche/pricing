@@ -45,12 +45,18 @@ def load_access_methods():
 
 #load licences information 
 @st.cache_data
+
 def load_licenses():
     try:
-        return pd.read_csv('licenses.csv')
+        df = pd.read_csv('licenses.csv')
+        license_cost = df.iloc[1]['# licenses'] if len(df) > 1 else 5000  # Default to 5000 if second row doesn't exist
+        return df, license_cost
     except Exception as e:
         st.error(f"Error loading licenses.csv: {str(e)}")
-        return pd.DataFrame(columns=['Ticket size', '# licenses'])
+        return pd.DataFrame(columns=['Ticket size', '# licenses']), 5000
+
+licenses_df, license_cost = load_licenses()
+
 
 licenses_df = load_licenses()
 
@@ -354,7 +360,7 @@ def main():
             # Allow user to add extra licenses
             st.subheader("Licenses")
             extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
-            license_cost = 1000  # Set the cost per additional license (adjust as needed)
+            # license_cost is  loaded from licenses.csv
             total_licenses = included_licenses + extra_licenses
             extra_license_cost = extra_licenses * license_cost
 
