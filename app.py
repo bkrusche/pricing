@@ -44,7 +44,43 @@ def load_access_methods():
         return {}
 
 
-# AFunction to calculate required metrics from labels
+@st.cache_data
+def load_label_requirements():
+    try:
+        return pd.read_csv('labels.csv')
+    except Exception as e:
+        st.error(f"Error loading labels.csv: {str(e)}")
+        return pd.DataFrame()
+def get_required_modules_for_label(label_name, labels_df):
+    """Get the required modules based on the metrics count in labels.csv"""
+    label_reqs = labels_df[labels_df['Label name'] == label_name].iloc[0]
+    required_modules = []
+    
+    # Map the requirements to specific modules
+    if int(label_reqs['Exposures']) > 0:
+        required_modules.append('Exposures')
+    
+    if int(label_reqs['ESG Risk']) > 0:
+        required_modules.append('ESG Risk')
+    
+    if int(label_reqs['SFDR PAIs']) > 0:
+        required_modules.append('SFDR PAIs')
+    
+    if int(label_reqs['UN SDGs Alignment']) > 0:
+        required_modules.append('UN SDGs Alignment')
+    
+    if int(label_reqs['Carbon Footprint']) > 0:
+        required_modules.append('Carbon Footprint')
+    
+    if int(label_reqs['EU Taxonomy - product level reporting']) > 0:
+        required_modules.append('EU Taxonomy - product level reporting')
+    
+    # For 'Other' metrics, we'll assume they need the smallest Raw data package
+    if int(label_reqs['Other']) > 0:
+        required_modules.append('Emissions / Up to 10 metrics')
+    
+    return required_modules
+
 def check_label_requirements(selected_modules, modules_df, labels_df):
     # Get all selected labels
     selected_labels = [module for module in selected_modules 
@@ -56,42 +92,15 @@ def check_label_requirements(selected_modules, modules_df, labels_df):
     missing_requirements = {}
     
     for selected_label in selected_labels:
-        # Get requirements for selected label
-        label_reqs = labels_df[labels_df['Label name'] == selected_label].iloc[0]
+        required_modules = get_required_modules_for_label(selected_label, labels_df)
+        missing_modules = [module for module in required_modules 
+                         if module not in selected_modules]
         
-        # Count selected modules per category
-        selected_counts = {
-            'Exposures': sum(1 for module in selected_modules if 'Exposures' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
-            'ESG Risk': sum(1 for module in selected_modules if 'Risk' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
-            'SFDR PAIs': sum(1 for module in selected_modules if 'Raw data' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
-            'UN SDGs Alignment': sum(1 for module in selected_modules if 'Impact' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
-            'Carbon Footprint': sum(1 for module in selected_modules if 'Climate' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
-            'EU Taxonomy - product level reporting': sum(1 for module in selected_modules if 'Regulatory' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
-            'Other': sum(1 for module in selected_modules if 'Raw data' in str(modules_df[modules_df['Product module'] == module]['Topic'].values))
-        }
-        
-        # Calculate missing metrics
-        missing = {}
-        for category in label_reqs.index:
-            if category != 'Label name':  # Skip the label name column
-                required = int(label_reqs[category])
-                current = selected_counts.get(category, 0)
-                if required > current:
-                    missing[category] = required - current
-        
-        if missing:
-            missing_requirements[selected_label] = missing
+        if missing_modules:
+            missing_requirements[selected_label] = missing_modules
             
     return missing_requirements
-
-
-@st.cache_data
-def load_label_requirements():
-    try:
-        return pd.read_csv('labels.csv')
-    except Exception as e:
-        st.error(f"Error loading labels.csv: {str(e)}")
-        return pd.DataFrame()
+    
 
 # Extract configurations from the DataFrame
 try:
@@ -200,18 +209,23 @@ def main():
             # Load labels data
             labels_df = load_label_requirements()
                 
+        # check requirements for labels
+        if selected_modules:
+            # Load labels data
+            labels_df = load_label_requirements()
+            
             # Check requirements for any selected labels
-            missing_metrics = check_label_requirements(selected_modules, modules_df, labels_df)
-                
-            if missing_metrics:
+            missing_requirements = check_label_requirements(selected_modules, modules_df, labels_df)
+            
+            if missing_requirements:
                 st.markdown("### **Label Requirements Check**")
-                for label, requirements in missing_metrics.items():
-                    st.markdown(f"**{label}:**")
-                    for category, count in requirements.items():
-                        if count > 0:
-                            st.markdown(
-                                f'<p style="color: orange;">⚠️ {count} additional metric(s) required from {category}</p>',
-                                unsafe_allow_html=True
+                for label, missing_modules in missing_requirements.items():
+                    st.markdown(f"**{label}** requires the following additional modules:")
+                    for module in missing_modules:
+                        st.markdown(
+                            f'<p style="color: orange;">⚠️ {module}</p>',
+                            unsafe_allow_html=True
+                        )
                             )            
                 st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
