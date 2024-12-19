@@ -142,11 +142,12 @@ def main():
         
             # Initialize access method multiplier
             access_method_keys = (
-                str(selected_access_methods.get('Webapp (reports only)', False)).upper(),
-                str(selected_access_methods.get('Webapp (download)', False)).upper(),
-                str(selected_access_methods.get('API', False)).upper(),
-                str(selected_access_methods.get('Datafeed', False)).upper()
+                bool(selected_access_methods.get('Webapp (reports only)', False)),
+                bool(selected_access_methods.get('Webapp (download)', False)),
+                bool(selected_access_methods.get('API', False)),
+                bool(selected_access_methods.get('Datafeed', False))
             )
+
             
             # Get the access_multiplier based on selected access methods
             access_multiplier = access_method_factors.get(access_method_keys, 0)  # Default to 0 if no match found
