@@ -26,7 +26,7 @@ def load_access_methods():
         access_method_factors = {}
         for row in access_methods_df.itertuples(index=False):
             key = tuple(str(value).lower() == 'true' for value in row[:4])  # Convert first 4 columns to boolean
-            value = float(row[4].replace('%', '').strip())  # Convert to float, removing any '%'
+            value = float(row[4]) if isinstance(row[4], float) else float(row[4].strip())
             access_method_factors[key] = value
         return access_method_factors
     except Exception as e:
