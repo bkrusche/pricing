@@ -7,7 +7,6 @@ if 'init' not in st.session_state:
     st.session_state.init = True
     st.set_page_config(page_title="Product Price Configurator", layout="wide")
 
-
 # Add function to clear all selections
 def clear_all_selections():
     # Clear access method selections
@@ -44,6 +43,55 @@ def load_access_methods():
         st.error(f"Error loading accessmethods.csv: {str(e)}")
         return {}
 
+
+# AFunction to calculate required metrics from labels
+def check_label_requirements(selected_modules, modules_df, labels_df):
+    # Get all selected labels
+    selected_labels = [module for module in selected_modules 
+                      if module in labels_df['Label name'].values]
+    
+    if not selected_labels:
+        return None
+    
+    missing_requirements = {}
+    
+    for selected_label in selected_labels:
+        # Get requirements for selected label
+        label_reqs = labels_df[labels_df['Label name'] == selected_label].iloc[0]
+        
+        # Count selected modules per category
+        selected_counts = {
+            'Exposures': sum(1 for module in selected_modules if 'Exposures' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
+            'ESG Risk': sum(1 for module in selected_modules if 'Risk' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
+            'SFDR PAIs': sum(1 for module in selected_modules if 'Raw data' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
+            'UN SDGs Alignment': sum(1 for module in selected_modules if 'Impact' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
+            'Carbon Footprint': sum(1 for module in selected_modules if 'Climate' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
+            'EU Taxonomy - product level reporting': sum(1 for module in selected_modules if 'Regulatory' in str(modules_df[modules_df['Product module'] == module]['Topic'].values)),
+            'Other': sum(1 for module in selected_modules if 'Raw data' in str(modules_df[modules_df['Product module'] == module]['Topic'].values))
+        }
+        
+        # Calculate missing metrics
+        missing = {}
+        for category in label_reqs.index:
+            if category != 'Label name':  # Skip the label name column
+                required = int(label_reqs[category])
+                current = selected_counts.get(category, 0)
+                if required > current:
+                    missing[category] = required - current
+        
+        if missing:
+            missing_requirements[selected_label] = missing
+            
+    return missing_requirements
+
+
+@st.cache_data
+def load_label_requirements():
+    try:
+        return pd.read_csv('labels.csv')
+    except Exception as e:
+        st.error(f"Error loading labels.csv: {str(e)}")
+        return pd.DataFrame()
 
 # Extract configurations from the DataFrame
 try:
@@ -149,7 +197,23 @@ def main():
 
         # Process selected modules
         if selected_modules:
-            st.subheader("Selected Modules")
+            # Load labels data
+            labels_df = load_label_requirements()
+                
+            # Check requirements for any selected labels
+            missing_metrics = check_label_requirements(selected_modules, modules_df, labels_df)
+                
+            if missing_metrics:
+                st.markdown("### **Label Requirements Check**")
+                for label, requirements in missing_metrics.items():
+                    st.markdown(f"**{label}:**")
+                    for category, count in requirements.items():
+                        if count > 0:
+                            st.markdown(
+                                f'<p style="color: orange;">⚠️ {count} additional metric(s) required from {category}</p>',
+                                unsafe_allow_html=True
+                            )            
+                st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
         
             # Ensure 'Price' is numeric
