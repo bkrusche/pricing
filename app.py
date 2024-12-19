@@ -19,14 +19,13 @@ def load_config():
 config_df = load_config()
 
 
-# Load access methods from CSV file
 @st.cache_data
 def load_access_methods():
     try:
         access_methods_df = pd.read_csv('accessmethods.csv')
         access_method_factors = {}
         for row in access_methods_df.itertuples(index=False):
-            key = tuple(row[0].lower() == 'true' for row in row[:4])  # Convert first 4 columns to boolean
+            key = tuple(str(value).lower() == 'true' for value in row[:4])  # Convert first 4 columns to boolean
             value = float(row[4].replace('%', '').strip())  # Convert to float, removing any '%'
             access_method_factors[key] = value
         return access_method_factors
