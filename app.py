@@ -409,7 +409,7 @@ def main():
                 st.subheader("Total Price")
                 st.markdown(f"**<p style='font-size: 24px;'>{format_price(final_total_price, currency)}</p>**", unsafe_allow_html=True)
 
-            st.subheader("Additional Information")
+            st.markdown("### **<span style='color: red;'>Additional Information - Internal only</span>**", unsafe_allow_html=True)            
             st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
             st.write(f"Cost per additional license: {format_price(license_cost, currency)}")
 
