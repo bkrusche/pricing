@@ -217,35 +217,35 @@ def main():
             # Check requirements for any selected labels
             missing_requirements = check_label_requirements(selected_modules, modules_df, labels_df)
             
-        if missing_requirements:
-                        st.markdown("### **Label Requirements Check**")
-                        for label, missing_modules in missing_requirements.items():
-                            label_reqs = labels_df[labels_df['Label name'] == label].iloc[0]
-                            for module in missing_modules:
-                                # Map module to its requirement count from labels.csv
-                                if module == 'Exposures':
-                                    count = label_reqs['Exposures']
-                                elif module == 'ESG Risk':
-                                    count = label_reqs['ESG Risk']
-                                elif module == 'SFDR PAIs':
-                                    count = label_reqs['SFDR PAIs']
-                                elif module == 'UN SDGs Alignment':
-                                    count = label_reqs['UN SDGs Alignment']
-                                elif module == 'Carbon Footprint':
-                                    count = label_reqs['Carbon Footprint']
-                                elif module == 'EU Taxonomy - product level reporting':
-                                    count = label_reqs['EU Taxonomy - product level reporting']
-                                elif module == 'Emissions / Up to 10 metrics':
-                                    count = label_reqs['Other']
-                                    
-                                st.markdown(
-                                    f'<p style="color: orange;">⚠️ {label} requires {int(count)} metrics from {module}</p>',
-                                    unsafe_allow_html=True
-                                )
+            if missing_requirements:
+                            st.markdown("### **Label Requirements Check**")
+                            for label, missing_modules in missing_requirements.items():
+                                label_reqs = labels_df[labels_df['Label name'] == label].iloc[0]
+                                for module in missing_modules:
+                                    # Map module to its requirement count from labels.csv
+                                    if module == 'Exposures':
+                                        count = label_reqs['Exposures']
+                                    elif module == 'ESG Risk':
+                                        count = label_reqs['ESG Risk']
+                                    elif module == 'SFDR PAIs':
+                                        count = label_reqs['SFDR PAIs']
+                                    elif module == 'UN SDGs Alignment':
+                                        count = label_reqs['UN SDGs Alignment']
+                                    elif module == 'Carbon Footprint':
+                                        count = label_reqs['Carbon Footprint']
+                                    elif module == 'EU Taxonomy - product level reporting':
+                                        count = label_reqs['EU Taxonomy - product level reporting']
+                                    elif module == 'Emissions / Up to 10 metrics':
+                                        count = label_reqs['Other']
+                                        
+                                    st.markdown(
+                                        f'<p style="color: orange;">⚠️ {label} requires {int(count)} metrics from {module}</p>',
+                                        unsafe_allow_html=True
+                                    )
                 
-        st.subheader("Selected Modules")
-        selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
-        
+            st.subheader("Selected Modules")
+            selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
+    
             # Ensure 'Price' is numeric
             selected_df['Price'] = pd.to_numeric(selected_df['Price'], errors='coerce')
         
