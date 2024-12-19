@@ -7,17 +7,6 @@ if 'init' not in st.session_state:
     st.session_state.init = True
     st.set_page_config(page_title="Product Price Configurator", layout="wide")
 
-if 'selected_access_methods' not in st.session_state:
-    st.session_state.selected_access_methods = {}
-
-if 'selected_modules' not in st.session_state:
-    st.session_state.selected_modules = []
-
-# Clear selections function
-def clear_selections():
-    st.session_state.selected_access_methods = {method: False for method in access_methods.keys()}
-    st.session_state.selected_modules = []
-
 # Load configuration from CSV file
 @st.cache_data
 def load_config():
@@ -95,13 +84,7 @@ def main():
     try:
         access_method_factors = load_access_methods()  # Load access methods
         st.title("Product Price Configurator")
-        
-        # Add "Clear All Selections" button in the top right
-        clear_button = st.button("Clear All Selections", key="clear_button")
-        if clear_button:
-            clear_selections()
-            
-            
+
         # User inputs
         col1, col2, col3 = st.columns(3)
         with col1:
