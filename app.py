@@ -18,7 +18,6 @@ def load_config():
 
 config_df = load_config()
 
-
 @st.cache_data
 def load_access_methods():
     try:
