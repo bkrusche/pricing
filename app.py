@@ -354,40 +354,40 @@ def main():
                         unsafe_allow_html=True,
                     )
 
-
+        
                     # Calculate total price
-        total_price = selected_df['Final Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
+            total_price = selected_df['Final Price'].str.replace(r'[^\d.]', '', regex=True).astype(float).sum()
 
-        # Determine included licenses
-        included_licenses = get_included_licenses(total_price)
+            # Determine included licenses
+            included_licenses = get_included_licenses(total_price)
 
 
 
-        # Display results in three columns
-        col1, col2, col3 = st.columns(3)
-        with col1:
-
-            # Allow user to add extra licenses
-            st.subheader("Licenses")
-            extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
-            license_cost = get_license_price(total_price)  # Set the cost per additional license (adjust as needed)
-            total_licenses = included_licenses + extra_licenses
-            extra_license_cost = extra_licenses * license_cost
-
-            st.write(f"{total_licenses} ({included_licenses} included + {extra_licenses} additional)")
+            # Display results in three columns
+            col1, col2, col3 = st.columns(3)
+            with col1:
     
-            # Update total price with extra license cost
-            final_total_price = total_price + extra_license_cost
-        with col2:
-            st.subheader("Included Service Level")
-            st.write("N/A")  # Empty for now, as requested
-        with col3:
-            st.subheader("Total Price")
-            st.write(format_price(final_total_price, currency))
-
-        st.subheader("Additional Information")
-        st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
-        st.write(f"Cost per additional license: {format_price(license_cost, currency)}")
+                # Allow user to add extra licenses
+                st.subheader("Licenses")
+                extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
+                license_cost = get_license_price(total_price)  # Set the cost per additional license (adjust as needed)
+                total_licenses = included_licenses + extra_licenses
+                extra_license_cost = extra_licenses * license_cost
+    
+                st.write(f"{total_licenses} ({included_licenses} included + {extra_licenses} additional)")
+        
+                # Update total price with extra license cost
+                final_total_price = total_price + extra_license_cost
+            with col2:
+                st.subheader("Included Service Level")
+                st.write("N/A")  # Empty for now, as requested
+            with col3:
+                st.subheader("Total Price")
+                st.write(format_price(final_total_price, currency))
+    
+            st.subheader("Additional Information")
+            st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
+            st.write(f"Cost per additional license: {format_price(license_cost, currency)}")
         
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
