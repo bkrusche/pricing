@@ -26,7 +26,7 @@ def load_access_methods():
         access_methods_df = pd.read_csv('accessmethods.csv')
         access_method_factors = {}
         for row in access_methods_df.itertuples(index=False):
-            key = (row[0], row[1], row[2], row[3])  # Tuple of (Webapp (reports only), Webapp (download), API, Datafeed)
+            key = tuple(row[0].lower() == 'true' for row in row[:4])  # Convert first 4 columns to boolean
             value = float(row[4].replace('%', '').strip())  # Convert to float, removing any '%'
             access_method_factors[key] = value
         return access_method_factors
