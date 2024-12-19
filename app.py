@@ -22,7 +22,7 @@ def load_variable_costs():
         df = pd.read_csv('variablecost.csv')
         # Convert columns 7-15 to float
         columns_to_convert = df.columns[6:13]  # Columns 7-12 (0-indexed)
-        df[columns_to_convert] = df[columns_to_convert].astype(float)
+        df[columns_to_convert] = df[columns_to_convert].astype(float)/1000
         return df
     except Exception as e:
         st.error(f"Error loading variablecost.csv: {str(e)}")
@@ -415,8 +415,7 @@ def main():
 
               # Calculate variable costs
             aum_column = next(col for col in variable_costs_df.columns if aum in col)
-            selected_df['Variable Cost'] = selected_df['Product module'].map(variable_costs_df.set_index('Product module')[aum_column]).fillna(0)
-            st.write(f"AuM column: {variable_costs_df.set_index('Product module')[aum_column]}") #debug
+            selected_df['Variable Cost'] = selected_df['Product module'].map(variable_costs_df.set_index('Product module')[aum_column]).fillna(0) 
 
              # Update the table display to include Variable Cost
             st.table(selected_df[['Topic', 'Product module', 'Variable Cost']])
