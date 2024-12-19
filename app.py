@@ -22,7 +22,7 @@ def load_variable_costs():
         df = pd.read_csv('variablecost.csv')
         # Convert columns 7-15 to float
         columns_to_convert = df.columns[6:13]  # Columns 7-12 (0-indexed)
-        df[columns_to_convert] = df[columns_to_convert].astype(float)/100
+        df[columns_to_convert] = df[columns_to_convert].astype(float)
         return df
     except Exception as e:
         st.error(f"Error loading variablecost.csv: {str(e)}")
