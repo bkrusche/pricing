@@ -226,7 +226,7 @@ def main():
                             f'<p style="color: orange;">⚠️ {module}</p>',
                             unsafe_allow_html=True
                         )
-                            )            
+           
                 st.subheader("Selected Modules")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
         
