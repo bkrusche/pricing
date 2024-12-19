@@ -85,24 +85,56 @@ def main():
         access_method_factors = load_access_methods()  # Load access methods
         st.title("Product Price Configurator")
 
-        # User inputs
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
-        with col2:
-            aum = st.selectbox("Select AuM Bracket", list(aum_brackets.keys()))
-        with col3:
-            contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
+        # Custom CSS to create a fixed header
+        st.markdown("""
+        <style>
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background-color: white;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .content {
+            margin-top: 200px;  # Adjust this value based on the height of your fixed header
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-        st.subheader("Access Methods")
-        cols = st.columns(len(access_methods))
-        selected_access_methods = {}
-        for i, method in enumerate(access_methods.keys()):
-            with cols[i]:
-                selected_access_methods[method] = st.checkbox(f"{method}")
+        # Create a container for the fixed header
+        header = st.container()
 
-        st.subheader("Select Product Modules")
-        selected_modules = []
+        with header:
+            st.markdown('<div class="fixed-header">', unsafe_allow_html=True)
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                currency = st.selectbox("Select Currency", list(exchange_rates.keys()))
+            with col2:
+                aum = st.selectbox("Select AuM Bracket", list(aum_brackets.keys()))
+            with col3:
+                contract_length = st.selectbox("Select Contract Length", list(contract_discounts.keys()))
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # Create a container for the scrollable content
+        content = st.container()
+
+        with content:
+            st.markdown('<div class="content">', unsafe_allow_html=True)
+            st.subheader("Access Methods")
+            cols = st.columns(len(access_methods))
+            selected_access_methods = {}
+            for i, method in enumerate(access_methods.keys()):
+                with cols[i]:
+                    selected_access_methods[method] = st.checkbox(f"{method}")
+
+            st.subheader("Select Product Modules")
+            selected_modules = []
+            # Rest of your code for product modules...
+            st.markdown('</div>', unsafe_allow_html=True)
+
         
         # Custom sorting of topics
         custom_order = [
