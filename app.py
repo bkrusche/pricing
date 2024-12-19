@@ -7,6 +7,17 @@ if 'init' not in st.session_state:
     st.session_state.init = True
     st.set_page_config(page_title="Product Price Configurator", layout="wide")
 
+# Add function to clear all selections
+def clear_all_selections():
+    # Clear access method selections
+    for method in access_methods.keys():
+        st.session_state[f"access_method_{method}"] = False
+    
+    # Clear module selections
+    for module in modules_df['Product module']:
+        st.session_state[module] = False
+
+
 # Load configuration from CSV file
 @st.cache_data
 def load_config():
@@ -83,7 +94,14 @@ def format_price(price, currency):
 def main():
     try:
         access_method_factors = load_access_methods()  # Load access methods
-        st.title("Product Price Configurator")
+        
+        # Create two columns for title and clear button
+        col_title, col_button = st.columns([5,1])
+        with col_title:
+            st.title("Product Price Configurator")
+        with col_button:
+            st.button("Clear All Selections", on_click=clear_all_selections, type="secondary")
+
 
         # User inputs
         col1, col2, col3 = st.columns(3)
