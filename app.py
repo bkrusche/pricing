@@ -314,7 +314,7 @@ def main():
             # Get the access_multiplier based on selected access methods
             access_multiplier = access_method_factors.get(access_method_keys, 0)  # Default to 0 if no match found
             st.write(access_method_keys)
-            st.write(access_method_factors)  # debug message
+            st.write(access_method_factors.get(access_method_keys, 0))  # debug message
 
 
             # Apply total access multiplier
