@@ -174,7 +174,7 @@ modules_df.columns = modules_df.columns.str.strip()
 def calculate_discount(module_count, contract_length):
     years = int(contract_length.split()[0])
     module_discount = module_discounts.get(module_count, module_discounts[7] if module_count > 7 else 0)
-    contract_discount = sum(contract_discounts[contract_length][:years]) / years / 100
+    contract_discount = contract_discounts.get(contract_length)
     total_discount = 1 - (1 - module_discount) * (1 - contract_discount)
     return total_discount
 
