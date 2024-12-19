@@ -17,6 +17,16 @@ def clear_all_selections():
     for module in modules_df['Product module']:
         st.session_state[module] = False
 
+# Add load variable cost 
+def load_variable_costs():
+    try:
+        return pd.read_csv('variablecost.csv')
+    except Exception as e:
+        st.error(f"Error loading variablecost.csv: {str(e)}")
+        return pd.DataFrame()
+
+variable_costs_df = load_variable_costs()
+
 
 # Load configuration from CSV file
 @st.cache_data
@@ -398,11 +408,20 @@ def main():
             st.subheader("Additional Information")
             st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
             st.write(f"Cost per additional license: {format_price(license_cost, currency)}")
+
+              # Calculate variable costs
+            aum_column = next(col for col in variable_costs_df.columns if aum in col)
+            selected_df['Variable Cost'] = selected_df['Product module'].map(
+            variable_costs_df.set_index('Product module')[aum_column]
+            ).fillna(0)
+
+             # Update the table display to include Variable Cost
+            st.table(selected_df[['Topic', 'Product module', 'Variable Cost']])
         
-    except Exception as e:
+except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         st.error(traceback.format_exc())
-
+    
 # Run the application
 if __name__ == "__main__":
     main()
