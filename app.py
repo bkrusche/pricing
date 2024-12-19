@@ -358,7 +358,6 @@ def main():
             total_licenses = included_licenses + extra_licenses
             extra_license_cost = extra_licenses * license_cost
 
-            st.subheader("Included Licenses")
             st.write(f"{total_licenses} ({included_licenses} included + {extra_licenses} additional)")
     
             # Update total price with extra license cost
