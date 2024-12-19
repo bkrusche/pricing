@@ -1,4 +1,4 @@
-Webapp (reports only),Webapp (download),API,Datafeed,Price Factor
+Webapp (reports only),Webapp (download),API,Datafeed,Price Facto
 TRUE,FALSE,FALSE,FALSE,-0.15
 FALSE,TRUE,FALSE,FALSE,0
 FALSE,FALSE,TRUE,FALSE,0
@@ -13,4 +13,4 @@ TRUE,TRUE,TRUE,TRUE,+0.40
 FALSE,TRUE,TRUE,FALSE,+0.20
 FALSE, FALSE,TRUE,FALSE,+0.35
 FALSE,FALSE,TRUE,TRUE,+0.35
-FALSE,TRUE,TRUE,TRUE,+40%
+FALSE,TRUE,TRUE,TRUE,+0.4
