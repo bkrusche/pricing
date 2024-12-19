@@ -1,0 +1,12 @@
+Product module,Webapp (reports only),API,Datafeed,Vendor,Details,<0.5Bn,0.5-1Bn,1-5Bn,5-15Bn,15-25Bn,25-50Bn,50-250Bn,250+Bn
+Controversies Premium,TRUE,TRUE,TRUE,Lexis Nexis,Raw Data of News,1575,1575,1575,1575,1575,1575,1575,1575
+ESG Risk,TRUE,TRUE,TRUE,Lexis Nexis,Derived Data: Scores built with News articles,0,0,0,0,0,0,0,0
+SFDR PAIs,TRUE,TRUE,TRUE,Lexis Nexis,Derived Data: PAIs built with News Articles,0,0,0,0,0,0,0,0
+EU Tax derived data,TRUE,TRUE,TRUE,Lexis Nexis,Derived Data: Step 3/4 data,0,0,0,0,0,0,0,0
+EU Taxonomy - product level reporting,FALSE,TRUE,TRUE,Factset,Step 1,2 and 5 with full granularity at issuer/security level,6825,6825,6825,10500,10500,21000,21000,31500
+EU Taxonomy (incl. entity level Article 8 prefilled annexes IV & X),FALSE,TRUE,TRUE,Factset,Step 1,2 and 5 with full granularity at issuer/security level,6500,6500,6500,10000,10000,20000,20000,30000
+UN SDGs Alignment,TRUE,TRUE,TRUE,Factset,UN SDG rev alignment full granularity at issuer level,6500,6500,6500,10000,10000,20000,20000,30000
+Nature & Biodiversity - TNFD,TRUE,TRUE,TRUE,GIST,PDF Biodiversity data,0,0,0,0,0,0,0,0
+TCFD Reporting (portfolio/fund level),TRUE,TRUE,TRUE,Ortec Finance,Portfolio/Fund Level + top/bottom 10 securites,0,0,0,0,0,0,0,0
+Climate Scenario Analysis,TRUE,TRUE,TRUE,Ortec Finance,Issuer/Security Level data,0,0,0,0,0,0,0,0
+Climate Transition,TRUE,TRUE,TRUE,CDP,All data in Net Zero, specially ITR,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3
