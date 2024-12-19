@@ -319,7 +319,7 @@ def main():
         
             # Calculate discounts
             bundle_discount = calculate_discount(len(selected_modules), "1 year")  # Use existing function for bundle discount
-            multi_year_discount = contract_discount  # Calculate multi-year discount based on contract length
+            multi_year_discount = contract_discounts.get(contract_length)  # Calculate multi-year discount based on contract length
         
             # Add new discount columns
             selected_df['Bundle Discount'] = f"{bundle_discount:.2%}"
