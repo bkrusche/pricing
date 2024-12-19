@@ -345,21 +345,22 @@ def main():
         # Determine included licenses
         included_licenses = get_included_licenses(total_price)
 
-        # Allow user to add extra licenses
-        st.subheader("Licenses")
-        extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
-        license_cost = 1000  # Set the cost per additional license (adjust as needed)
-        total_licenses = included_licenses + extra_licenses
-        extra_license_cost = extra_licenses * license_cost
 
-        # Update total price with extra license cost
-        final_total_price = total_price + extra_license_cost
 
         # Display results in three columns
         col1, col2, col3 = st.columns(3)
         with col1:
             st.subheader("Included Licenses")
             st.write(f"{total_licenses} ({included_licenses} included + {extra_licenses} additional)")
+            # Allow user to add extra licenses
+            st.subheader("Licenses")
+            extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
+            license_cost = 1000  # Set the cost per additional license (adjust as needed)
+            total_licenses = included_licenses + extra_licenses
+            extra_license_cost = extra_licenses * license_cost
+    
+            # Update total price with extra license cost
+            final_total_price = total_price + extra_license_cost
         with col2:
             st.subheader("Included Service Level")
             st.write("N/A")  # Empty for now, as requested
