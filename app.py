@@ -308,7 +308,7 @@ def main():
                                     )
             st.divider()
     
-            st.subheader("Price sheet")
+            st.header("Price sheet")
             selected_df = modules_df[modules_df['Product module'].isin(selected_modules)].copy()
     
             # Ensure 'Price' is numeric
