@@ -412,8 +412,7 @@ def main():
 
             st.divider()
                         
-            st.markdown("### **<span style='color: red;'>Additional Information - Internal only</span>**", unsafe_allow_html=True)            
-            st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
+            st.markdown("#### **<span style='color: red;'>Additional Information - Internal only</span>**", unsafe_allow_html=True)            st.write(f"Exchange rate: 1 USD = {1/exchange_rates[currency]:.2f} {currency}")
             st.write(f"Cost per additional license: {format_price(license_cost, currency)}")
 
               # Calculate variable costs
