@@ -303,19 +303,12 @@ def main():
         
             # Add AE Discount column with dropdown selection for up to 15%
             ae_discount_options = [0, 5, 10, 15]  # Define options for AE Discount
-            col_ae_discount = st.columns(3)[0]  # Create a column that takes up one-third of the page
-            ae_discount_percentage = col_ae_discount.selectbox("Select AE Discount (%)", ae_discount_options) / 100  # Dropdown for AE Discount
-            selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
-        
-
-            # Add AE Discount column with dropdown selection for up to 15% and license selection
-            ae_discount_options = [0, 5, 10, 15]  # Define options for AE Discount
             col_ae_discount, col_licenses = st.columns(2)  # Create two columns
-            
+            ae_discount_percentage = col_ae_discount.selectbox("Select AE Discount (%)", ae_discount_options) / 100  # Dropdown for AE Discount
+            selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"     
             with col_ae_discount:
                 ae_discount_percentage = st.selectbox("Select AE Discount (%)", ae_discount_options) / 100  # Dropdown for AE Discount
-                selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"
-            
+                selected_df['AE Discount'] = f"{ae_discount_percentage:.2%}"     
             with col_licenses:
                 extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
                 license_cost = 1000  # Set the cost per additional license (adjust as needed)
