@@ -350,14 +350,16 @@ def main():
         # Display results in three columns
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.subheader("Included Licenses")
-            st.write(f"{total_licenses} ({included_licenses} included + {extra_licenses} additional)")
+
             # Allow user to add extra licenses
             st.subheader("Licenses")
             extra_licenses = st.number_input("Additional licenses", min_value=0, value=0, step=1)
             license_cost = 1000  # Set the cost per additional license (adjust as needed)
             total_licenses = included_licenses + extra_licenses
             extra_license_cost = extra_licenses * license_cost
+
+            st.subheader("Included Licenses")
+            st.write(f"{total_licenses} ({included_licenses} included + {extra_licenses} additional)")
     
             # Update total price with extra license cost
             final_total_price = total_price + extra_license_cost
