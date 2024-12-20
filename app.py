@@ -427,10 +427,12 @@ def main():
             
             # Apply variable costs only if the appropriate access method is selected
             selected_df['Variable Cost'] = selected_df.apply(
-                lambda row: variable_costs_df.loc[
-                    variable_costs_df['Product module'] == row['Product module'], 
-                    aum_column
-                ].values[0] if not variable_costs_df[variable_costs_df['Product module'] == row['Product module']].empty and 
+                lambda row: (
+                    variable_costs_df.loc[
+                        variable_costs_df['Product module'] == row['Product module'], 
+                        aum_column
+                    ].values[0] * exchange_rates[currency]  # Multiply by exchange rate
+                ) if not variable_costs_df[variable_costs_df['Product module'] == row['Product module']].empty and 
                 should_apply_variable_cost(
                     variable_costs_df.loc[variable_costs_df['Product module'] == row['Product module']].iloc[0],
                     selected_access_methods,
@@ -444,6 +446,7 @@ def main():
             
             # Update the table display to include Variable Cost
             st.table(selected_df[['Topic', 'Product module', 'Variable Cost']])
+
 
         
     except Exception as e:
