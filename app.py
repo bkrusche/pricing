@@ -420,22 +420,21 @@ def main():
             # Calculate variable costs
             aum_column = next(col for col in variable_costs_df.columns if aum in col)
             
-            # Load access methods
-            #access_method_factors = load_access_methods()
-            
             # Create a function to check if the variable cost should be applied
-            def should_apply_variable_cost(row, selected_access_methods):
-                access_method_key = tuple(selected_access_methods.get(method, False) for method in ['Webapp (reports only)', 'Webapp (download)', 'API', 'Datafeed'])
-                return access_method_key in access_method_factors and any(row[method] for method in ['Webapp (reports only)', 'Webapp (download)', 'API', 'Datafeed'] if selected_access_methods.get(method, False))
+            def should_apply_variable_cost(row, selected_access_methods, access_methods):
+                # Dynamically check access methods based on keys in access_methods
+                return any(selected_access_methods.get(method, False) and row.get(method, False) for method in access_methods.keys())
             
             # Apply variable costs only if the appropriate access method is selected
             selected_df['Variable Cost'] = selected_df.apply(
                 lambda row: variable_costs_df.loc[
                     variable_costs_df['Product module'] == row['Product module'], 
                     aum_column
-                ].values[0] if should_apply_variable_cost(
+                ].values[0] if not variable_costs_df[variable_costs_df['Product module'] == row['Product module']].empty and 
+                should_apply_variable_cost(
                     variable_costs_df.loc[variable_costs_df['Product module'] == row['Product module']].iloc[0],
-                    selected_access_methods
+                    selected_access_methods,
+                    access_methods
                 ) else 0,
                 axis=1
             )
@@ -447,11 +446,6 @@ def main():
             st.table(selected_df[['Topic', 'Product module', 'Variable Cost']])
 
 
-            # Format Variable Cost as currency
-            selected_df['Variable Cost'] = selected_df['Variable Cost'].apply(lambda x: format_price(x, currency))
-
-             # Update the table display to include Variable Cost
-            st.table(selected_df[['Topic', 'Product module', 'Variable Cost']])
         
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
