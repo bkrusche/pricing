@@ -445,7 +445,6 @@ def main():
             # Update the table display to include Variable Cost
             st.table(selected_df[['Topic', 'Product module', 'Variable Cost']])
 
-
         
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
